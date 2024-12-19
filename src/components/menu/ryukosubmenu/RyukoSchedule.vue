@@ -195,7 +195,7 @@ const deleteAllRows = async () => {
 
   try {
     // サーバーへ削除リクエストを送信
-    const response = await axios.post("http://192.168.10.119:8091/receiving/deleteBatch", {
+    const response = await axios.post("https://www.hokuohylogi.com/receiving/deleteBatch", {
       ryukonoList: selectedRows.value,
     });
 
@@ -229,7 +229,7 @@ const searchData = async () => {
   // `arrivalDate` を `yyyy/MM/dd` に変換
   const formattedDate = filters.value.arrivalDate.replace(/-/g, "/");
 
-  const apiUrl = "http://192.168.10.119:8091/receiving/search";
+  const apiUrl = "https://www.hokuohylogi.com/receiving/search";
   const params = {
     arrivalDate: formattedDate,
     tokuisaki: filters.value.tokuisaki,
@@ -291,7 +291,7 @@ const handleFileChange = async (event) => {
       const formData = new FormData();
       formData.append("file", newFile);
 
-      const apiUrl = "http://192.168.10.119:8091";
+      const apiUrl = "https://www.hokuohylogi.com";
 
       await axios.post(`${apiUrl}/receiving/uploadCsv`, formData, {
         headers: {

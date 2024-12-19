@@ -126,7 +126,7 @@ const getSelectedTokuisakiName = (value) => {
 const confirmEntry = async () => {
   const formattedDate = formatDateToSlash(filters.value.arrivalDate);
   try {
-    const response = await axios.post("http://192.168.10.119:8091/ryukodata/confirm", {
+    const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
       kisandata: formattedDate, // スラッシュ形式に変換
       tokuisaki: filters.value.tokuisaki,
     });
@@ -153,7 +153,7 @@ const handleProgressCheck = async () => {
   try {
     // バックエンドへデータ送信
     const response = await axios.post(
-      "http://192.168.10.119:8091/shelving/achievements",
+      "https://www.hokuohylogi.com/shelving/achievements",
       {
         kisandata: formattedDate, // スラッシュ形式に変換
         tokuisakicd: filters.value.tokuisaki,

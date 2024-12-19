@@ -81,7 +81,7 @@ const handleProgressCheck = async () => {
   try {
     // バックエンドへデータ送信
     const response = await axios.post(
-      "http://192.168.10.119:8091/ryukodata/achievements",
+      "https://www.hokuohylogi.com/ryukodata/achievements",
       {
         kisandata: formattedDate, // スラッシュ形式に変換
         tokuisakicd: filters.value.tokuisaki,

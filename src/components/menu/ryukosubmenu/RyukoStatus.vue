@@ -213,7 +213,7 @@ const handleSelectionChange = (selection) => {
 
 const handleSave = async () => {
   try {
-    const apiUrl = "http://192.168.10.119:8091/shelving/update";
+    const apiUrl = "https://www.hokuohylogi.com/shelving/update";
 
     // expirationDateをISO形式で送信
     const payload = {
@@ -317,7 +317,7 @@ const closeModal = () => {
 // 既存の進捗確認データ取得
 const fetchProgressSummary = async (filters) => {
   try {
-    const response = await axios.get("http://192.168.10.119:8091/progress/summary", { params: filters });
+    const response = await axios.get("https://www.hokuohylogi.com/progress/summary", { params: filters });
     return response.data;
   } catch (error) {
     console.error("進捗データの取得に失敗しました:", error);
@@ -328,7 +328,7 @@ const fetchProgressSummary = async (filters) => {
 // 新規の進捗詳細データ取得
 const fetchProgressDetails = async (progressFilters) => {
   try {
-    const response = await axios.get("http://192.168.10.119:8091/progress/details", { params: progressFilters });
+    const response = await axios.get("https://www.hokuohylogi.com/progress/details", { params: progressFilters });
     return response.data;
   } catch (error) {
     console.error("進捗詳細データの取得に失敗しました:", error);
