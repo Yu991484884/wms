@@ -326,7 +326,7 @@ const searchData = async () => {
 const handleSave = async () => {
   try {
     //const apiUrl = "https://www.hokuohylogi.com/shelving/update";
-    const apiUrl = "http://192.168.10.119:8091/receiving/update";
+    const apiUrl = "https://www.hokuohylogi.com/receiving/update";
 
     // expirationDateをISO形式で送信
     const payload = {
