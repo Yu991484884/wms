@@ -1,25 +1,40 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
+
 const routes = [
   {
     path: "/",
     redirect: "/login", // デフォルトはログインページへリダイレクト
+    meta: { breadcrumb: [{ label: "ホーム", path: "/" }] },
   },
   {
     path: "/login",
     name: "Login",
     component: () => import("../components/login/LoginView.vue"),
+    meta: { breadcrumb: [{ label: "ログイン", path: "/login" }] },
   },
   {
     path: "/ryukostatus",
     name: "RyukoStatus",
     component: () => import("../components/menu/ryukosubmenu/RyukoStatus.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "入庫進捗", path: "/ryukostatus" },
+      ],
+    },
   },
   {
     path: "/ryukoschedule",
     name: "RyukoSchedule",
     component: () => import("../components/menu/ryukosubmenu/RyukoSchedule.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "入庫予定登録", path: "/ryukoschedule" },
+      ],
+    },
   },
   {
     path: "/ryukono",
@@ -35,11 +50,23 @@ const routes = [
     path: "/ryukoconfirm",
     name: "RyukoConfirm",
     component: () => import("../components/menu/ryukosubmenu/RyukoConfirm.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "入庫確定", path: "/ryukoconfirm" },
+      ],
+    },
   },
   {
     path: "/ryukoachievements",
     name: "RyukoAchievements",
     component: () => import("../components/menu/ryukosubmenu/RyukoAchievements.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "入庫実績", path: "/ryukoachievements" },
+      ],
+    },
   },
   {
     path: "/syukostatus",
@@ -126,11 +153,13 @@ const router = createRouter({
 // グローバルナビゲーションガード
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
+  const isAuthenticated = authStore.isAuthenticated;
 
   // ログインページへのアクセスは常に許可
-  if (to.path === "/login") {
+  if (to.path !== "/login" && !isAuthenticated) {
+    next("/login");
+  } else {
     next();
-    return;
   }
 
   // ログインしていない場合はログインページへリダイレクト
