@@ -15,12 +15,10 @@
   <label for="order-number">得意先</label>
   <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
     <option value=""></option>
-    <option value="1000481">三井物産流通グループ㈱（IKBC）</option>
-    <option value="1000486">三井物産流通グループ㈱</option>
-    <option value="1000482">㈱久世(クリエイトG）</option>
-    <option value="1000483">株式会社梅の花</option>
-    <option value="1000484">グローバルキッチン株式会社</option>
-    <option value="1000485">小口用得意先</option>
+          <option value="2040907">岩槻)ギフト</option>
+          <option value="1000482">㈱久世(クリエイトG）</option>
+          <option value="1000486">株式会社梅の花</option>
+          <option value="1000489">グローバルキッチン株式会社</option>
   </select>
 </div>
 <div class="filter-item">
@@ -62,7 +60,7 @@
   </div>
   <div class="button-group">
     <button class="header-button search-button" @click="searchData">検索</button>
-    <button class="header-button delete-all-button" @click="deleteAllRows">一括削除</button>
+    <button class="header-button delete-all-button" @click="deleteAllRows">選択削除</button>
   </div>
 </div>
     <!-- 表格容器 -->
@@ -82,10 +80,9 @@
         <el-table-column prop="supplier" label="サプライヤ様" width="auto" />
 
         <!-- ボタン列 -->
-        <el-table-column label="操作区分" fixed="right" width:auto>
+        <el-table-column label="操作区分" fixed="right" width="150">
           <template #default="scope">
             <button class="action-button edit-button" @click="editRow(scope.row)">編集</button>
-            <button class="action-button delete-button" @click="deleteRow(scope.row)">削除</button>
           </template>
         </el-table-column>
       </el-table>
@@ -120,7 +117,59 @@
         </div>
       </div>
     </div>
+
+    <div v-if="isChildViewVisible" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>入庫予定商品</h2>
+    </div>
+    <div class="modal-body">
+      <!-- 編集フィールド -->
+      <div class="field">
+        <label for="syohincd">商品CD:</label>
+        <input id="syohincd" v-model="selectedRowData.syohincd" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="syohinmei">商品名:</label>
+        <input id="syohinmei" v-model="selectedRowData.syohinmei" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="nyukoyoteisu">入庫予定数:</label>
+        <input id="nyukoyoteisu" type="number" v-model="selectedRowData.nyukoyoteisu" class="modal-input" />
+      </div>
+      <div class="field">
+        <label for="irisu">入数:</label>
+        <input id="irisu" type="number" v-model="selectedRowData.irisu" class="modal-input" />
+      </div>
+      <div class="field">
+        <label for="expirationdate">賞味期限:</label>
+        <input id="expirationdate" type="date" v-model="selectedRowData.expirationdate" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="kesu">ケース:</label>
+        <input id="kesu" type="number" v-model="selectedRowData.kesu" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="bara">バラ:</label>
+        <input id="bara" type="number" v-model="selectedRowData.bara" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="location">ロケーション:</label>
+        <input id="location" type="text" v-model="selectedRowData.location" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="supplier">サプライヤ様:</label>
+        <input id="supplier" v-model="selectedRowData.supplier" class="modal-input" disabled/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-button confirm-button" @click="handleSave">確定</button>
+      <button class="action-button cancel-button" @click="closeChildView">キャンセル</button>
+    </div>
   </div>
+</div>
+  </div>
+
 </template>
 
 
@@ -132,6 +181,8 @@ import { ref } from "vue";
 
 const fileInput = ref(null);
 const successModalVisible = ref(false); // モーダル表示状態を管理
+const selectedRowData = ref({}); // 子ビューに表示する選択された行データ
+const isChildViewVisible = ref(false); // 子ビューの表示状態
 
 const triggerFileUpload = () => {
   if (fileInput.value) {
@@ -155,10 +206,10 @@ const denpyokubunMap = {
 };
 
 const tokuisakicdMap = {
-  "1000482": "クリエイト",
-  "1000483": "梅の花",
-  "1000484": "グローバルキッチン",
-  "1000485": "小口用得意先",
+     "2040907": "岩槻)ギフト",
+    "1000482": "㈱久世(クリエイトG）",
+    "1000486": "株式会社梅の花",
+    "1000489": "グローバルキッチン株式会社",
 };
 
 const eigyosyocdMap = {
@@ -167,6 +218,10 @@ const eigyosyocdMap = {
   "0007": "浮島センター",
   "0008": "厚木センター",
 };
+
+const closeChildView=()=>{
+  isChildViewVisible.value=false;
+}
 
 // 表データ
 const tableData = ref([]);
@@ -253,6 +308,7 @@ const searchData = async () => {
 
       // 行数を更新
       rowCount.value = tableData.value.length;
+     
     } else {
       alert("該当するデータがありません。");
       tableData.value = [];
@@ -267,13 +323,41 @@ const searchData = async () => {
 };
 
 
-const editRow = (row) => {
-  alert(`編集ボタンがクリックされました: ${JSON.stringify(row)}`);
-  // Add your edit logic here
+const handleSave = async () => {
+  try {
+    //const apiUrl = "https://www.hokuohylogi.com/shelving/update";
+    const apiUrl = "http://192.168.10.119:8091/receiving/update";
+
+    // expirationDateをISO形式で送信
+    const payload = {
+      ryukono: selectedRowData.value.ryukono,
+      nyukoyoteisu: selectedRowData.value.nyukoyoteisu,
+      irisu: selectedRowData.value.irisu,
+    };
+
+    console.log("送信データ:", payload);
+
+    const response = await axios.put(apiUrl, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // 成功時の処理
+    alert(response.data); // バックエンドのレスポンスを表示
+    // データの再取得
+    await searchData();
+    closeChildView();
+  } catch (error) {
+    console.error("データ送信中にエラーが発生しました:", error);
+    alert("データ送信中にエラーが発生しました。再試行してください。");
+  }
 };
 
-const deleteRow = () => {
 
+const editRow = (row) => {
+  selectedRowData.value = { ...row,originalExpirationDate: row.expirationdate,  }; // 行データをコピーして選択
+  isChildViewVisible.value = true; // 子ビューを表示
 };
 
 const handleFileChange = async (event) => {
@@ -500,20 +584,35 @@ p {
 }
 
 .modal {
-  background: #fdffff;
-  border-radius: 8px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
+  background: #ffffff;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: left;
   padding: 20px;
 }
 
 .modal-header h2 {
   margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.modal-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+  margin-bottom: 20px;
 }
 
 .modal-body p {
   margin: 20px 0;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .modal-footer {
@@ -556,4 +655,65 @@ html, body {
 ::v-deep(.BackgroundColor) {
   background-color: #e2f3f7; /* 黄色の背景色 */
 }
+
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.field label {
+  font-weight: bold;
+  width: 120px;
+  text-align: right;
+  color: #555;
+}
+
+.modal-input {
+  flex-grow: 1;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid #eaeaea;
+  padding-top: 10px;
+}
+
+.action-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.confirm-button {
+  background-color: #33b48d;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.confirm-button:hover {
+  background-color: #28a076;
+}
+
+.cancel-button {
+  background-color: #ccc;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #b3b3b3;
+}
+
 </style>

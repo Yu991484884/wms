@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box">
       <div class="logo-section">
-        <img src="@/assets/logo.png" alt="Logo" class="logo" />
+        <img src="@/assets/ryutsu.png" alt="Logo" class="logo" />
         <h2>ようこそ<br />for Hokuoh</h2>
       </div>
       <form @submit.prevent="login" class="login-form">
@@ -111,7 +111,7 @@ const login = async () => {
 }
 
 .logo {
-  width: 70px;
+  width: 120px;
   height: auto;
   margin-bottom: 10px;
 }

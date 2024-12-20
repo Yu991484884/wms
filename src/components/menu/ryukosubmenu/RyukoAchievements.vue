@@ -15,12 +15,10 @@
         <label for="order-number">得意先</label>
         <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
           <option value=""></option>
-          <option value="1000481">三井物産流通グループ㈱（IKBC）</option>
-          <option value="1000486">三井物産流通グループ㈱</option>
+          <option value="2040907">岩槻)ギフト</option>
           <option value="1000482">㈱久世(クリエイトG）</option>
-          <option value="1000483">株式会社梅の花</option>
-          <option value="1000484">グローバルキッチン株式会社</option>
-          <option value="1000485">小口用得意先</option>
+          <option value="1000486">株式会社梅の花</option>
+          <option value="1000489">グローバルキッチン株式会社</option>
         </select>
       </div>
 

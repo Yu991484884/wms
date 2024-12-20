@@ -15,12 +15,10 @@
         <label for="order-number">得意先</label>
         <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
           <option value=""></option>
-          <option value="1000481">三井物産流通グループ㈱（IKBC）</option>
-          <option value="1000486">三井物産流通グループ㈱</option>
+          <option value="2040907">岩槻)ギフト</option>
           <option value="1000482">㈱久世(クリエイトG）</option>
-          <option value="1000483">株式会社梅の花</option>
-          <option value="1000484">グローバルキッチン株式会社</option>
-          <option value="1000485">小口用得意先</option>
+          <option value="1000486">株式会社梅の花</option>
+          <option value="1000489">グローバルキッチン株式会社</option>
         </select>
       </div>
       <div class="filter-item">
@@ -151,6 +149,10 @@
         <input id="bara" type="number" v-model="selectedRowData.bara" class="modal-input" />
       </div>
       <div class="field">
+        <label for="location">ロケーション:</label>
+        <input id="location" type="text" v-model="selectedRowData.location" class="modal-input" />
+      </div>
+      <div class="field">
         <label for="supplier">サプライヤ様:</label>
         <input id="supplier" v-model="selectedRowData.supplier" class="modal-input" disabled/>
       </div>
@@ -213,7 +215,8 @@ const handleSelectionChange = (selection) => {
 
 const handleSave = async () => {
   try {
-    const apiUrl = "https://www.hokuohylogi.com/shelving/update";
+    //const apiUrl = "https://www.hokuohylogi.com/shelving/update";
+    const apiUrl = "http://192.168.10.119:8091/shelving/update";
 
     // expirationDateをISO形式で送信
     const payload = {
@@ -222,6 +225,7 @@ const handleSave = async () => {
       expirationDate: new Date(selectedRowData.value.expirationdate).toISOString().split("T")[0],
       kesu: selectedRowData.value.kesu,
       bara: selectedRowData.value.bara,
+      location: selectedRowData.value.location,
     };
 
     console.log("送信データ:", payload);
@@ -582,16 +586,31 @@ p {
 }
 
 .modal {
-  background: #fdffff;
-  border-radius: 8px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: center;
+  background: #ffffff;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: left;
   padding: 20px;
+}
+
+.modal-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+  margin-bottom: 20px;
 }
 
 .modal-header h2 {
   margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .modal-body p {
@@ -600,7 +619,11 @@ p {
 
 .modal-footer {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  border-top: 1px solid #eaeaea;
+  padding-top: 10px;
 }
 
 .close-button {
@@ -722,18 +745,25 @@ html, body {
 .action-button {
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-size: 14px;
   cursor: pointer;
 }
 
 .confirm-button {
-  background-color: #4caf50;
+  background-color: #33b48d;
   color: white;
+  transition: background-color 0.3s;
+}
+
+.confirm-button:hover {
+  background-color: #b3b3b3;
 }
 
 .cancel-button {
-  background-color: #f44336;
-  color: white;
+  background-color: #ccc;
+  color: #333;
+  transition: background-color 0.3s;
 }
 
 .modal-body {
@@ -746,21 +776,22 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px; /* ラベルと入力欄の間隔 */
+  gap: 10px;
 }
 
 .field label {
   font-weight: bold;
-  width: 120px; /* ラベルの固定幅 */
+  width: 120px;
   text-align: right;
+  color: #555;
 }
 
 .modal-input {
-  flex: 1;
-  padding: 5px;
+  flex-grow: 1;
+  padding: 8px;
   font-size: 14px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
 }
 
 html, body {
