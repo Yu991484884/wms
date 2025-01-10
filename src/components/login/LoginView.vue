@@ -8,8 +8,8 @@
       <form @submit.prevent="login" class="login-form">
         <div class="footer">
           <select v-model="connectionType" class="connection-select">
-            <option value="001">岩槻センター</option>
-            <option value="002">大宮センター</option>
+            <option value="005">岩槻センター</option>
+            <option value="001">大宮センター</option>
             <option value="003">浮島センター</option>
             <option value="004">厚木センター</option>
           </select>
