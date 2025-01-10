@@ -74,7 +74,9 @@ const handleProgressCheck = async () => {
     return;
   }
 
-  const formattedDate = formatDateToSlash(filters.value.arrivalDate);
+  const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
+    return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
+  });
 
   try {
     // バックエンドへデータ送信

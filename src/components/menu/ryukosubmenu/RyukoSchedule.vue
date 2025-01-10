@@ -287,6 +287,7 @@ const searchData = async () => {
   });
 
   const apiUrl = "https://www.hokuohylogi.com/receiving/search";
+  
   const params = {
     arrivalDate: formattedDate,
     tokuisaki: filters.value.tokuisaki,

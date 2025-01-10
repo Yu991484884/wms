@@ -86,9 +86,9 @@ const filters = ref({
   tokuisaki: "",
 });
 
-const formatDateToSlash = (date) => {
-  return date.replace(/-/g, "/");
-};
+// const formatDateToSlash = (date) => {
+//   return date.replace(/-/g, "/");
+// };
 
 
 
@@ -120,9 +120,12 @@ const getSelectedTokuisakiName = (value) => {
 
 // 「はい」ボタンの処理
 const confirmEntry = async () => {
-  const formattedDate = formatDateToSlash(filters.value.arrivalDate);
+  const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
+    return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
+  });
   try {
-    const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
+    // const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
+      const response = await axios.post("http://192.168.10.119:8091/ryukodata/confirm", {
       kisandata: formattedDate, // スラッシュ形式に変換
       tokuisaki: filters.value.tokuisaki,
     });
@@ -144,12 +147,23 @@ const handleProgressCheck = async () => {
     return;
   }
 
-  const formattedDate = formatDateToSlash(filters.value.arrivalDate);
+  const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
+    return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
+  });
 
+  // try {
+  //   // バックエンドへデータ送信
+  //   const response = await axios.post(
+  //     "https://www.hokuohylogi.com/shelving/achievements",
+  //     {
+  //       kisandata: formattedDate, // スラッシュ形式に変換
+  //       tokuisakicd: filters.value.tokuisaki,
+  //     }
+  //   );
   try {
     // バックエンドへデータ送信
     const response = await axios.post(
-      "https://www.hokuohylogi.com/shelving/achievements",
+      "http://192.168.10.119:8091/shelving/achievements",
       {
         kisandata: formattedDate, // スラッシュ形式に変換
         tokuisakicd: filters.value.tokuisaki,
