@@ -18,42 +18,42 @@
           <option value="1036300">幸楽苑</option>
           <option value="1040907">ギフト</option>
           <option value="1040909">青木屋（ギフト分）</option>
-          <option value="1000489">若葉食品（ギフト分）</option>
-          <option value="1000489">水野産業</option>
-          <option value="1000489">藤本商会本店</option>
-          <option value="1000489">日本ピュアフード</option>
-          <option value="1000489">株式会社小善本店</option>
-          <option value="1000489">イワタニフーズ株式会社</option>
-          <option value="1000489">SEVENフーズ</option>
-          <option value="1000489">株式会社ミツハシ</option>
-          <option value="1000489">株式会社むらせ</option>
-          <option value="1000489">磯美人</option>
-          <option value="1000489">佐藤海苔</option>
-          <option value="1000489">福井</option>
-          <option value="1000489">ニコニコのり株式会社</option>
-          <option value="1000489">二丸屋山口商店</option>
-          <option value="1000489">トーホー産業</option>
-          <option value="1000489">伊藤ハム販売㈱</option>
-          <option value="1000489">東海澱粉㈱</option>
-          <option value="1000489">日東ベスト㈱</option>
-          <option value="1000489">㈱リブネット(日次)</option>
-          <option value="1000489">㈱ミクロ</option>
-          <option value="1000489">タマノイ酢㈱ </option>
-          <option value="1000489">㈱渡辺海苔店</option>
-          <option value="1000489">アリアケジャパン㈱</option>
-          <option value="1000489">隅田商事㈱</option>
-          <option value="1000489">一正蒲鉾㈱</option>
-          <option value="1000489">キンレイ</option>
-          <option value="1000489">きのこ総合センター㈱</option>
-          <option value="1000489">フードリンク株式会社</option>
-          <option value="1000489">株式会社ミーテック</option>
-          <option value="1000489">日東富士製粉株式会社</option>
-          <option value="1000489">米久株式会社</option>
-          <option value="1000489">株式会社山口油屋福太郎</option>
-          <option value="1000489">スターゼン株式会社</option>
-          <option value="1000489">㈱まる味食品（寄託）</option>
-          <option value="1000489">レオックフーズ</option>
-          <option value="1000489">ナチュラルハウス</option>
+          <option value="1040910">若葉食品（ギフト分）</option>
+          <option value="1040911">水野産業</option>
+          <option value="1040912">藤本商会本店</option>
+          <option value="1040813">日本ピュアフード</option>
+          <option value="1040914">株式会社小善本店</option>
+          <option value="1040915">イワタニフーズ株式会社</option>
+          <option value="1040918">SEVENフーズ</option>
+          <option value="1040919">株式会社ミツハシ</option>
+          <option value="1040920">株式会社むらせ</option>
+          <option value="1040921">磯美人</option>
+          <option value="1040922">佐藤海苔</option>
+          <option value="1040923">福井</option>
+          <option value="1040924">ニコニコのり株式会社</option>
+          <option value="1041000">二丸屋山口商店</option>
+          <option value="1041001">トーホー産業</option>
+          <option value="1041004">伊藤ハム販売㈱</option>
+          <option value="1041005">東海澱粉㈱</option>
+          <option value="1041006">日東ベスト㈱</option>
+          <option value="1041009">㈱リブネット(日次)</option>
+          <option value="1041010">㈱ミクロ</option>
+          <option value="1041012">タマノイ酢㈱ </option>
+          <option value="1041013">㈱渡辺海苔店</option>
+          <option value="1041016">アリアケジャパン㈱</option>
+          <option value="1041017">隅田商事㈱</option>
+          <option value="1041025">一正蒲鉾㈱</option>
+          <option value="1041027">キンレイ</option>
+          <option value="1041028">きのこ総合センター㈱</option>
+          <option value="1041029">フードリンク株式会社</option>
+          <option value="1041030">株式会社ミーテック</option>
+          <option value="1041031">日東富士製粉株式会社</option>
+          <option value="1041032">米久株式会社</option>
+          <option value="1041033">株式会社山口油屋福太郎</option>
+          <option value="1041034">スターゼン株式会社</option>
+          <option value="1041120">㈱まる味食品（寄託）</option>
+          <option value="1106001">レオックフーズ</option>
+          <option value="2">ナチュラルハウス</option>
   </select>
 </div>
 <div class="filter-item">
@@ -241,17 +241,52 @@ const denpyokubunMap = {
 };
 
 const tokuisakicdMap = {
-     "2040907": "岩槻)ギフト",
-    "1000482": "㈱久世(クリエイトG）",
-    "1000486": "株式会社梅の花",
-    "1000489": "グローバルキッチン株式会社",
+  "1036300": "幸楽苑",
+  "1040907": "ギフト",
+  "1040909": "青木屋（ギフト分）",
+  "1040910": "若葉食品（ギフト分）",
+  "1040911": "水野産業",
+  "1040912": "藤本商会本店",
+  "1040813": "日本ピュアフード",
+  "1040914": "株式会社　小善本店",
+  "1040915": "イワタニフーズ株式会社",
+  "1040918": "SEVENフーズ",
+  "1040919": "株式会社ミツハシ",
+  "1040920": "株式会社むらせ",
+  "1040921": "磯美人",
+  "1040922": "佐藤海苔",
+  "1040923": "福井",
+  "1040924": "ニコニコのり株式会社",
+  "1041000": "二丸屋山口商店",
+  "1041001": "トーホー産業",
+  "1041004": "伊藤ハム販売㈱",
+  "1041005": "東海澱粉㈱",
+  "1041006": "日東ベスト㈱",
+  "1041009": "㈱リブネット(日次)",
+  "1041010": "㈱ミクロ",
+  "1041012": "タマノイ酢㈱",
+  "1041013": "㈱渡辺海苔店",
+  "1041016": "アリアケジャパン㈱",
+  "1041017": "隅田商事㈱",
+  "1041025": "一正蒲鉾㈱",
+  "1041027": "キンレイ",
+  "1041028": "きのこ総合センター㈱",
+  "1041029": "フードリンク株式会社",
+  "1041030": "株式会社ミーテック",
+  "1041031": "日東富士製粉株式会社",
+  "1041032": "米久株式会社",
+  "1041033": "株式会社山口油屋福太郎",
+  "1041034": "スターゼン株式会社",
+  "1041120": "㈱まる味食品（寄託）",
+  "1106001": "レオックフーズ",
+  "2": "ナチュラルハウス"
 };
 
 const eigyosyocdMap = {
   "0005": "岩槻センター",
-  "0006": "大宮センター",
-  "0007": "浮島センター",
-  "0008": "厚木センター",
+  "0001": "大宮センター",
+  "0003": "浮島センター",
+  "0004": "厚木センター",
 };
 
 const closeChildView=()=>{

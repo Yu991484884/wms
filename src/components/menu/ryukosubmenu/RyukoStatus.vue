@@ -15,10 +15,45 @@
         <label for="order-number">得意先</label>
         <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
           <option value=""></option>
-          <option value="2040907">岩槻)ギフト</option>
-          <option value="1000482">㈱久世(クリエイトG）</option>
-          <option value="1000486">株式会社梅の花</option>
-          <option value="1000489">グローバルキッチン株式会社</option>
+          <option value="1036300">幸楽苑</option>
+          <option value="1040907">ギフト</option>
+          <option value="1040909">青木屋（ギフト分）</option>
+          <option value="1040910">若葉食品（ギフト分）</option>
+          <option value="1040911">水野産業</option>
+          <option value="1040912">藤本商会本店</option>
+          <option value="1040813">日本ピュアフード</option>
+          <option value="1040914">株式会社小善本店</option>
+          <option value="1040915">イワタニフーズ株式会社</option>
+          <option value="1040918">SEVENフーズ</option>
+          <option value="1040919">株式会社ミツハシ</option>
+          <option value="1040920">株式会社むらせ</option>
+          <option value="1040921">磯美人</option>
+          <option value="1040922">佐藤海苔</option>
+          <option value="1040923">福井</option>
+          <option value="1040924">ニコニコのり株式会社</option>
+          <option value="1041000">二丸屋山口商店</option>
+          <option value="1041001">トーホー産業</option>
+          <option value="1041004">伊藤ハム販売㈱</option>
+          <option value="1041005">東海澱粉㈱</option>
+          <option value="1041006">日東ベスト㈱</option>
+          <option value="1041009">㈱リブネット(日次)</option>
+          <option value="1041010">㈱ミクロ</option>
+          <option value="1041012">タマノイ酢㈱ </option>
+          <option value="1041013">㈱渡辺海苔店</option>
+          <option value="1041016">アリアケジャパン㈱</option>
+          <option value="1041017">隅田商事㈱</option>
+          <option value="1041025">一正蒲鉾㈱</option>
+          <option value="1041027">キンレイ</option>
+          <option value="1041028">きのこ総合センター㈱</option>
+          <option value="1041029">フードリンク株式会社</option>
+          <option value="1041030">株式会社ミーテック</option>
+          <option value="1041031">日東富士製粉株式会社</option>
+          <option value="1041032">米久株式会社</option>
+          <option value="1041033">株式会社山口油屋福太郎</option>
+          <option value="1041034">スターゼン株式会社</option>
+          <option value="1041120">㈱まる味食品（寄託）</option>
+          <option value="1106001">レオックフーズ</option>
+          <option value="2">ナチュラルハウス</option>
         </select>
       </div>
       <div class="filter-item">
@@ -215,8 +250,8 @@ const handleSelectionChange = (selection) => {
 
 const handleSave = async () => {
   try {
-    //const apiUrl = "https://www.hokuohylogi.com/shelving/update";
-    const apiUrl = "http://192.168.10.119:8091/shelving/update";
+    const apiUrl = "https://www.hokuohylogi.com/shelving/update";
+    //const apiUrl = "http://192.168.10.119:8091/shelving/update";
 
     // expirationDateをISO形式で送信
     const payload = {
