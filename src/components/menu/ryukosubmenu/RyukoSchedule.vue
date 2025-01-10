@@ -282,7 +282,9 @@ const searchData = async () => {
   }
 
   // `arrivalDate` を `yyyy/MM/dd` に変換
-  const formattedDate = filters.value.arrivalDate.replace(/-/g, "/");
+  const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
+    return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
+  });
 
   const apiUrl = "https://www.hokuohylogi.com/receiving/search";
   const params = {
