@@ -28,8 +28,8 @@
         </i>
       </div>
       <div v-if="activeMenu === 'syuko'" class="sub-menu">
-        <router-link to="/syukostatus" class="sub-item">出庫進捗</router-link>
         <router-link to="/syukoschedule" class="sub-item">出庫予定登録</router-link>
+        <router-link to="/syukostatus" class="sub-item">出庫進捗</router-link>
         <router-link to="/syukohikiate" class="sub-item">出庫引当処理</router-link>
         <router-link to="/syukogurosu" class="sub-item">出庫グロス帳票</router-link>
         <router-link to="/syukoconfirm" class="sub-item">出庫確定</router-link>

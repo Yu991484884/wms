@@ -72,11 +72,23 @@ const routes = [
     path: "/syukostatus",
     name: "SyukoStatus",
     component: () => import("../components/menu/syukosubmenu/SyukoStatus.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "出庫進捗", path: "/syukostatus" },
+      ],
+    },
   },
   {
     path: "/syukoschedule",
     name: "SyukoSchedule",
     component: () => import("../components/menu/syukosubmenu/SyukoSchedule.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "出庫予定", path: "/syukoschedule" },
+      ],
+    },
   },
   {
     path: "/syukohikiate",
@@ -87,16 +99,34 @@ const routes = [
     path: "/syukogurosu",
     name: "SyukoGurosu",
     component: () => import("../components/menu/syukosubmenu/SyukoGurosu.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "グロス帳票印刷", path: "/syukogurosu" },
+      ],
+    },
   },
   {
     path: "/syukoconfirm",
     name: "SyukoConfirm",
     component: () => import("../components/menu/syukosubmenu/SyukoConfirm.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "出庫確定", path: "/syukoconfirm" },
+      ],
+    },
   },
   {
     path: "/syukoachievements",
     name: "SyukoAchievements",
     component: () => import("../components/menu/syukosubmenu/SyukoAchievements.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "出庫実績", path: "/syukoachievements" },
+      ],
+    },
   },
   {
     path: "/itemmaster",
