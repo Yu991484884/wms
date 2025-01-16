@@ -90,7 +90,7 @@ const connectionType = ref("ssl");
 const login = async () => {
   try {
     const authStore = useAuthStore(); // Piniaのインスタンスを取得
-    const response = await axios.post("http://192.168.10.119:8091/user/weblogin", {
+    const response = await axios.post("https://www.hokuohylogi.com/user/weblogin", {
       centercd: connectionType.value,
       id: username.value,
       password: password.value,
