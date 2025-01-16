@@ -183,7 +183,7 @@ const isChildViewVisible = ref(false); // 子ビューの表示状態
 const selectedRowData = ref({}); // 子ビューに表示する選択された行データ
 
 const editRow = (row) => {
-  selectedRowData.value = { ...row,originalExpirationDate: row.expirationdate,  }; // 行データをコピーして選択
+  selectedRowData.value = { ...row,originalExpirationDate: row.expirationdate, originalLocation: row.location,   }; // 行データをコピーして選択
   isChildViewVisible.value = true; // 子ビューを表示
 };
 const isEditButtonVisible = ref(false); // 編集ボタン表示状態
@@ -249,7 +249,6 @@ const handleSelectionChange = (selection) => {
 
 const handleSave = async () => {
   try {
-     // const apiUrl = "https://www.hokuohylogi.com/shelving/update";
     const apiUrl = "https://www.hokuohylogi.com/shelving/update";
 
     // ログイン時のセンターコードを取得
@@ -257,18 +256,21 @@ const handleSave = async () => {
 
     // expirationDateをISO形式で送信
     const payload = {
-      centercd, // センターコードを追加
-      ryukono: selectedRowData.value.ryukono,
-      originalExpirationDate: new Date(selectedRowData.value.originalExpirationDate)
-        .toISOString()
-        .split("T")[0],
-      expirationDate: new Date(selectedRowData.value.expirationdate)
-        .toISOString()
-        .split("T")[0],
-      kesu: selectedRowData.value.kesu,
-      bara: selectedRowData.value.bara,
-      location: selectedRowData.value.location,
-    };
+  centercd, // センターコードを追加
+  ryukono: selectedRowData.value.ryukono,
+  originalExpirationDate: new Date(
+    selectedRowData.value.originalExpirationDate
+  )
+    .toISOString()
+    .split("T")[0],
+  expirationDate: new Date(selectedRowData.value.expirationdate)
+    .toISOString()
+    .split("T")[0],
+  kesu: selectedRowData.value.kesu,
+  bara: selectedRowData.value.bara,
+  originalLocation: selectedRowData.value.originalLocation, // 元のロケーション情報
+  location: selectedRowData.value.location, // 新しいロケーション情報
+};
 
     console.log("送信データ:", payload);
 
@@ -287,6 +289,7 @@ const handleSave = async () => {
     alert("データ送信中にエラーが発生しました。再試行してください。");
   }
 };
+
 
 // ダウンロード処理
 
