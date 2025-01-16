@@ -61,17 +61,46 @@ const username = ref("");
 const password = ref("");
 const connectionType = ref("ssl");
 
+// const login = async () => {
+//   try {
+//     // const authStore = useAuthStore(); // Piniaのインスタンスを取得
+//     // const response = await axios.post("https://www.hokuohylogi.com/user/weblogin", {
+//     //   centercd: connectionType.value,
+//     //   id: username.value,
+//     //   password: password.value,
+//     const authStore = useAuthStore(); // Piniaのインスタンスを取得
+//     const response = await axios.post("http://192.168.10.119:8091/user/weblogin", {
+//       centercd: connectionType.value,
+//       id: username.value,
+//       password: password.value,
+    
+//     });
+
+//     if (response.data === "success") {
+//       authStore.login(); // ログイン成功時にPiniaの状態を更新
+//       router.push("/ryukostatus"); // 次の画面へ遷移
+//     } else {
+//       alert("センタCD、ユーザーIDまたはパスワードが間違っています");
+//     }
+//   } catch (error) {
+//     console.error("ログイン中にエラーが発生しました:", error);
+//     alert("サーバーに接続できませんでした");
+//   }
+// };
 const login = async () => {
   try {
     const authStore = useAuthStore(); // Piniaのインスタンスを取得
-    const response = await axios.post("https://www.hokuohylogi.com/user/weblogin", {
+    const response = await axios.post("http://192.168.10.119:8091/user/weblogin", {
       centercd: connectionType.value,
       id: username.value,
       password: password.value,
     });
 
     if (response.data === "success") {
-      authStore.login(); // ログイン成功時にPiniaの状態を更新
+      // ログイン成功時にセンターコードを保存
+      authStore.centerId = connectionType.value; // センターコードを保存
+      authStore.userId = username.value; // ユーザーIDも保存
+      authStore.login(); // ログイン状態を更新
       router.push("/ryukostatus"); // 次の画面へ遷移
     } else {
       alert("センタCD、ユーザーIDまたはパスワードが間違っています");

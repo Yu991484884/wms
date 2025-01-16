@@ -12,50 +12,15 @@
         />
       </div>
       <div class="filter-item">
-        <label for="order-number">得意先</label>
-        <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
-          <option value=""></option>
-          <option value="1036300">幸楽苑</option>
-          <option value="1040907">ギフト</option>
-          <option value="1040909">青木屋（ギフト分）</option>
-          <option value="1040910">若葉食品（ギフト分）</option>
-          <option value="1040911">水野産業</option>
-          <option value="1040912">藤本商会本店</option>
-          <option value="1040813">日本ピュアフード</option>
-          <option value="1040914">株式会社小善本店</option>
-          <option value="1040915">イワタニフーズ株式会社</option>
-          <option value="1040918">SEVENフーズ</option>
-          <option value="1040919">株式会社ミツハシ</option>
-          <option value="1040920">株式会社むらせ</option>
-          <option value="1040921">磯美人</option>
-          <option value="1040922">佐藤海苔</option>
-          <option value="1040923">福井</option>
-          <option value="1040924">ニコニコのり株式会社</option>
-          <option value="1041000">二丸屋山口商店</option>
-          <option value="1041001">トーホー産業</option>
-          <option value="1041004">伊藤ハム販売㈱</option>
-          <option value="1041005">東海澱粉㈱</option>
-          <option value="1041006">日東ベスト㈱</option>
-          <option value="1041009">㈱リブネット(日次)</option>
-          <option value="1041010">㈱ミクロ</option>
-          <option value="1041012">タマノイ酢㈱ </option>
-          <option value="1041013">㈱渡辺海苔店</option>
-          <option value="1041016">アリアケジャパン㈱</option>
-          <option value="1041017">隅田商事㈱</option>
-          <option value="1041025">一正蒲鉾㈱</option>
-          <option value="1041027">キンレイ</option>
-          <option value="1041028">きのこ総合センター㈱</option>
-          <option value="1041029">フードリンク株式会社</option>
-          <option value="1041030">株式会社ミーテック</option>
-          <option value="1041031">日東富士製粉株式会社</option>
-          <option value="1041032">米久株式会社</option>
-          <option value="1041033">株式会社山口油屋福太郎</option>
-          <option value="1041034">スターゼン株式会社</option>
-          <option value="1041120">㈱まる味食品（寄託）</option>
-          <option value="1106001">レオックフーズ</option>
-          <option value="2">ナチュラルハウス</option>
-        </select>
-      </div>
+  <label for="order-number">得意先</label>
+  <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
+    <option value=""></option>
+    <option v-for="tokuisaki in tokuisakiList" :key="tokuisaki.tokuisakicd" :value="tokuisaki.tokuisakicd">
+      {{ tokuisaki.tokuisakinm }}
+    </option>
+  </select>
+</div>
+
       <div class="filter-item">
         <label for="product-code">進捗区分</label>
         <select id="denpyokubun" class="filter-select" v-model="progressFilters.denpyokubun">
@@ -208,6 +173,8 @@
 import { Search } from "@element-plus/icons-vue";
 import { ref } from "vue";
 import axios from "axios";
+import { onMounted} from "vue";
+import { useAuthStore } from "@/stores/auth"; // 認証ストアからセンターコードを取得
 
 // 状態管理
 const successModalVisible = ref(false); // モーダルの表示状態
@@ -220,6 +187,38 @@ const editRow = (row) => {
   isChildViewVisible.value = true; // 子ビューを表示
 };
 const isEditButtonVisible = ref(false); // 編集ボタン表示状態
+
+// ログイン時のセンターコードを取得
+const authStore = useAuthStore();
+const centercd = authStore.centerId; // ログイン中のセンターコード
+
+// 得意先リストデータ
+const tokuisakiList = ref([]);
+
+
+// 得意先リストをバックエンドから取得する関数
+const fetchTokuisakiList = async () => {
+  try {
+    const response = await axios.get("https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter", {
+      params: { centercd }, // センターコードを送信
+    });
+
+    if (response.data && Array.isArray(response.data)) {
+      tokuisakiList.value = response.data; // 得意先リストを保存
+    } else {
+      console.error("得意先データが不正です:", response.data);
+    }
+  } catch (error) {
+    console.error("得意先データの取得中にエラーが発生しました:", error);
+    alert("得意先データの取得に失敗しました。再試行してください。");
+  }
+};
+
+// ページ遷移時にデータを取得
+onMounted(() => {
+  fetchTokuisakiList();
+});
+
 
 // 既存の検索条件
 const filters = ref({
@@ -250,14 +249,22 @@ const handleSelectionChange = (selection) => {
 
 const handleSave = async () => {
   try {
+     // const apiUrl = "https://www.hokuohylogi.com/shelving/update";
     const apiUrl = "https://www.hokuohylogi.com/shelving/update";
-    //const apiUrl = "http://192.168.10.119:8091/shelving/update";
+
+    // ログイン時のセンターコードを取得
+    const centercd = authStore.centerId;
 
     // expirationDateをISO形式で送信
     const payload = {
+      centercd, // センターコードを追加
       ryukono: selectedRowData.value.ryukono,
-      originalExpirationDate: new Date(selectedRowData.value.originalExpirationDate).toISOString().split("T")[0], // 追加
-      expirationDate: new Date(selectedRowData.value.expirationdate).toISOString().split("T")[0],
+      originalExpirationDate: new Date(selectedRowData.value.originalExpirationDate)
+        .toISOString()
+        .split("T")[0],
+      expirationDate: new Date(selectedRowData.value.expirationdate)
+        .toISOString()
+        .split("T")[0],
       kesu: selectedRowData.value.kesu,
       bara: selectedRowData.value.bara,
       location: selectedRowData.value.location,
@@ -280,9 +287,6 @@ const handleSave = async () => {
     alert("データ送信中にエラーが発生しました。再試行してください。");
   }
 };
-
-
-
 
 // ダウンロード処理
 
@@ -356,7 +360,18 @@ const closeModal = () => {
 // 既存の進捗確認データ取得
 const fetchProgressSummary = async (filters) => {
   try {
-    const response = await axios.get("https://www.hokuohylogi.com/progress/summary", { params: filters });
+    // ログイン時のセンターコードを取得
+    const centercd = authStore.centerId;
+
+    // フィルタにセンターコードを追加
+    const updatedFilters = { ...filters, centercd };
+
+    // リクエスト送信
+    // const response = await axios.get("https://www.hokuohylogi.com/progress/summary", {
+      const response = await axios.get("https://www.hokuohylogi.com/progress/summary", {
+      params: updatedFilters,
+    });
+
     return response.data;
   } catch (error) {
     console.error("進捗データの取得に失敗しました:", error);
@@ -364,16 +379,29 @@ const fetchProgressSummary = async (filters) => {
   }
 };
 
+
 // 新規の進捗詳細データ取得
 const fetchProgressDetails = async (progressFilters) => {
   try {
-    const response = await axios.get("https://www.hokuohylogi.com/progress/details", { params: progressFilters });
+    // ログイン時のセンターコードを取得
+    const centercd = authStore.centerId;
+
+    // フィルタにセンターコードを追加
+    const updatedProgressFilters = { ...progressFilters, centercd };
+
+    // リクエスト送信
+    // const response = await axios.get("https://www.hokuohylogi.com/progress/details", {
+      const response = await axios.get("https://www.hokuohylogi.com/progress/details", {
+      params: updatedProgressFilters,
+    });
+
     return response.data;
   } catch (error) {
     console.error("進捗詳細データの取得に失敗しました:", error);
     return [];
   }
 };
+
 
 const handleProgressCheck = async () => {
   try {

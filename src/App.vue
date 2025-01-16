@@ -8,6 +8,7 @@
         <div class="date-container">
         <div class="date-text-container">
           <span class="current-date">{{ currentDate }}</span>
+          <span class="center-name">｜{{ centerName }}</span>
         </div>
       </div>
       </div>
@@ -53,6 +54,21 @@ const currentDate = computed(() => {
   const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" };
   return now.toLocaleDateString("ja-JP", options); // 日本語形式
 });
+
+// センターコードとセンター名のマッピング
+const centerMap = {
+  "005": "岩槻センター",
+  "001": "大宮センター",
+  "003": "浮島センター",
+  "004": "厚木センター",
+};
+
+
+// 現在のセンター名を計算
+const centerName = computed(() => {
+  return centerMap[authStore.centerId] || "不明なセンター";
+});
+
 
 // ドロップダウンの表示/非表示を切り替える関数
 const toggleDropdown = () => {

@@ -12,50 +12,14 @@
         />
       </div>
       <div class="filter-item">
-        <label for="order-number">得意先</label>
-        <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
-          <option value=""></option>
-          <option value="1036300">幸楽苑</option>
-          <option value="1040907">ギフト</option>
-          <option value="1040909">青木屋（ギフト分）</option>
-          <option value="1040910">若葉食品（ギフト分）</option>
-          <option value="1040911">水野産業</option>
-          <option value="1040912">藤本商会本店</option>
-          <option value="1040813">日本ピュアフード</option>
-          <option value="1040914">株式会社小善本店</option>
-          <option value="1040915">イワタニフーズ株式会社</option>
-          <option value="1040918">SEVENフーズ</option>
-          <option value="1040919">株式会社ミツハシ</option>
-          <option value="1040920">株式会社むらせ</option>
-          <option value="1040921">磯美人</option>
-          <option value="1040922">佐藤海苔</option>
-          <option value="1040923">福井</option>
-          <option value="1040924">ニコニコのり株式会社</option>
-          <option value="1041000">二丸屋山口商店</option>
-          <option value="1041001">トーホー産業</option>
-          <option value="1041004">伊藤ハム販売㈱</option>
-          <option value="1041005">東海澱粉㈱</option>
-          <option value="1041006">日東ベスト㈱</option>
-          <option value="1041009">㈱リブネット(日次)</option>
-          <option value="1041010">㈱ミクロ</option>
-          <option value="1041012">タマノイ酢㈱ </option>
-          <option value="1041013">㈱渡辺海苔店</option>
-          <option value="1041016">アリアケジャパン㈱</option>
-          <option value="1041017">隅田商事㈱</option>
-          <option value="1041025">一正蒲鉾㈱</option>
-          <option value="1041027">キンレイ</option>
-          <option value="1041028">きのこ総合センター㈱</option>
-          <option value="1041029">フードリンク株式会社</option>
-          <option value="1041030">株式会社ミーテック</option>
-          <option value="1041031">日東富士製粉株式会社</option>
-          <option value="1041032">米久株式会社</option>
-          <option value="1041033">株式会社山口油屋福太郎</option>
-          <option value="1041034">スターゼン株式会社</option>
-          <option value="1041120">㈱まる味食品（寄託）</option>
-          <option value="1106001">レオックフーズ</option>
-          <option value="2">ナチュラルハウス</option>
-        </select>
-      </div>
+  <label for="order-number">得意先</label>
+  <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
+    <option value=""></option>
+    <option v-for="tokuisaki in tokuisakiList" :key="tokuisaki.tokuisakicd" :value="tokuisaki.tokuisakicd">
+      {{ tokuisaki.tokuisakinm }}
+    </option>
+  </select>
+</div>
 
      <!-- ボタン -->
        <button class="search-button" @click="handleProgressCheck"><Finished class="icon" /> 入庫確認 </button>
@@ -109,6 +73,8 @@
 import { Finished,DocumentChecked,MagicStick } from "@element-plus/icons-vue";
 import { ref } from "vue";
 import axios from "axios";
+import { onMounted} from "vue";
+import { useAuthStore } from "@/stores/auth"; // 認証ストアからセンターコードを取得
 
 // モーダルの表示/非表示
 const isModalVisible = ref(false);
@@ -125,6 +91,36 @@ const filters = ref({
 //   return date.replace(/-/g, "/");
 // };
 
+// ログイン時のセンターコードを取得
+const authStore = useAuthStore();
+const centercd = authStore.centerId; // ログイン中のセンターコード
+
+// 得意先リストデータ
+const tokuisakiList = ref([]);
+
+
+// 得意先リストをバックエンドから取得する関数
+const fetchTokuisakiList = async () => {
+  try {
+    const response = await axios.get("https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter", {
+      params: { centercd }, // センターコードを送信
+    });
+
+    if (response.data && Array.isArray(response.data)) {
+      tokuisakiList.value = response.data; // 得意先リストを保存
+    } else {
+      console.error("得意先データが不正です:", response.data);
+    }
+  } catch (error) {
+    console.error("得意先データの取得中にエラーが発生しました:", error);
+    alert("得意先データの取得に失敗しました。再試行してください。");
+  }
+};
+
+// ページ遷移時にデータを取得
+onMounted(() => {
+  fetchTokuisakiList();
+});
 
 
 // モーダル表示
@@ -144,63 +140,29 @@ const showConfirmationBox = () => {
 
 // 得意先名を取得する関数
 const getSelectedTokuisakiName = (value) => {
-  const options = {
-    "1036300": "幸楽苑",
-  "1040907": "ギフト",
-  "1040909": "青木屋（ギフト分）",
-  "1040910": "若葉食品（ギフト分）",
-  "1040911": "水野産業",
-  "1040912": "藤本商会本店",
-  "1040813": "日本ピュアフード",
-  "1040914": "株式会社　小善本店",
-  "1040915": "イワタニフーズ株式会社",
-  "1040918": "SEVENフーズ",
-  "1040919": "株式会社ミツハシ",
-  "1040920": "株式会社むらせ",
-  "1040921": "磯美人",
-  "1040922": "佐藤海苔",
-  "1040923": "福井",
-  "1040924": "ニコニコのり株式会社",
-  "1041000": "二丸屋山口商店",
-  "1041001": "トーホー産業",
-  "1041004": "伊藤ハム販売㈱",
-  "1041005": "東海澱粉㈱",
-  "1041006": "日東ベスト㈱",
-  "1041009": "㈱リブネット(日次)",
-  "1041010": "㈱ミクロ",
-  "1041012": "タマノイ酢㈱",
-  "1041013": "㈱渡辺海苔店",
-  "1041016": "アリアケジャパン㈱",
-  "1041017": "隅田商事㈱",
-  "1041025": "一正蒲鉾㈱",
-  "1041027": "キンレイ",
-  "1041028": "きのこ総合センター㈱",
-  "1041029": "フードリンク株式会社",
-  "1041030": "株式会社ミーテック",
-  "1041031": "日東富士製粉株式会社",
-  "1041032": "米久株式会社",
-  "1041033": "株式会社山口油屋福太郎",
-  "1041034": "スターゼン株式会社",
-  "1041120": "㈱まる味食品（寄託）",
-  "1106001": "レオックフーズ",
-  "2": "ナチュラルハウス"
-  };
-  return options[value] || "";
+  const selectedTokuisaki = tokuisakiList.value.find((tokuisaki) => tokuisaki.tokuisakicd === value);
+  return selectedTokuisaki ? selectedTokuisaki.tokuisakinm : "";
 };
 
 // 「はい」ボタンの処理
 const confirmEntry = async () => {
+  // 入庫予定日をスラッシュ形式に変換
   const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
     return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
   });
+
+  // ログイン時のセンターコードを取得
+  const centercd = authStore.centerId;
+
   try {
-     const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
-      
-      kisandata: formattedDate, // スラッシュ形式に変換
+    // const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
+      const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
+      kisandata: formattedDate, // スラッシュ形式に変換された日付
       tokuisaki: filters.value.tokuisaki,
+      centercd, // センターコードを追加
     });
-      
-    response.data; //暫定的に
+
+    response.data
     alert("入庫が確定しました。");
   } catch (error) {
     console.error("入庫確定に失敗しました:", error);
@@ -210,6 +172,7 @@ const confirmEntry = async () => {
   }
 };
 
+
 const handleProgressCheck = async () => {
   // 入力内容の確認
   if (!filters.value.arrivalDate || !filters.value.tokuisaki) {
@@ -217,20 +180,25 @@ const handleProgressCheck = async () => {
     return;
   }
 
+  // 日付をスラッシュ形式に変換
   const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
     return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
   });
 
+  // ログイン時のセンターコードを取得
+  const centercd = authStore.centerId;
+
   try {
     // バックエンドへデータ送信
     const response = await axios.post(
+      // "https://www.hokuohylogi.com/shelving/achievements",
       "https://www.hokuohylogi.com/shelving/achievements",
       {
         kisandata: formattedDate, // スラッシュ形式に変換
         tokuisakicd: filters.value.tokuisaki,
+        centercd, // センターコードを追加
       }
     );
-
 
     // レスポンス処理（データフォーマット変更）
     const detailsData = response.data;
@@ -254,6 +222,7 @@ const handleProgressCheck = async () => {
     alert("データの取得に失敗しました");
   }
 };
+
 
 // チェックボックス選択時のイベント
 const handleSelectionChange = (rows) => {
