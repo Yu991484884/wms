@@ -197,8 +197,16 @@ const achievements = () => {
       "", "", "", "", "", "", "", "", "", "", // 空白列
     ].join(","))
   ].join("\n");
+  // 選択された得意先コードから得意先名を取得
+  const selectedTokuisaki = tokuisakiList.value.find(
+    (tokuisaki) => tokuisaki.tokuisakicd === filters.value.tokuisaki
+  );
+
+// 得意先名を取得（見つからない場合はデフォルト値）
+const tokuisakinm = selectedTokuisaki ? selectedTokuisaki.tokuisakinm : "得意先未設定";
+
   // CSVファイルのダウンロード処理
-  const fileName = `入庫実績_${filters.value.arrivalDate.replace(/-/g, "")}.csv`;
+  const fileName = `${filters.value.arrivalDate.replace(/-/g, "")}_${tokuisakinm}_NKDATA.csv`;
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
