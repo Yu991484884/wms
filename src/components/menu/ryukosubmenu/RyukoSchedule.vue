@@ -139,7 +139,7 @@
       </div>
       <div class="field">
         <label for="irisu">入数:</label>
-        <input id="irisu" type="number" v-model="selectedRowData.irisu" class="modal-input" />
+        <input id="irisu" type="number" v-model="selectedRowData.irisu" class="modal-input" disabled/>
       </div>
       <div class="field">
         <label for="expirationdate">賞味期限:</label>
