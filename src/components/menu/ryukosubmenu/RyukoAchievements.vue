@@ -32,6 +32,8 @@
     <!-- 表格容器 -->
     <div class="table-container">
       <el-table :data="progressTableData" style="width: 100%" height="600" border @selection-change="handleSelectionChange" row-class-name="BackgroundColor" >
+        <!-- チェックボックス列 -->
+        <el-table-column type="selection" width="55" fixed="left" />
         <!-- データ列 -->
         <el-table-column prop="syohincd" label="商品CD" width="120" />
         <el-table-column prop="syohinmei" label="商品名" width="300" />
@@ -67,12 +69,18 @@ const formatDateToSlash = (date) => {
   return date.replace(/-/g, "/");
 };
 
+const selectedRows = ref([]); // チェックされた行データを保持
 // ログイン時のセンターコードを取得
 const authStore = useAuthStore();
 const centercd = authStore.centerId; // ログイン中のセンターコード
 
 // 得意先リストデータ
 const tokuisakiList = ref([]);
+
+// チェックボックス選択時のイベント
+const handleSelectionChange = (rows) => {
+  selectedRows.value = rows;
+};
 
 
 // 得意先リストをバックエンドから取得する関数
@@ -143,6 +151,7 @@ const handleProgressCheck = async () => {
           ryukono: item.ryukono,
           kisandata: item.kisandata,
           denbyodata: item.denbyodata,
+          kyadenno:item.kyadenno
         }))
       : [];
   } catch (error) {
@@ -152,7 +161,7 @@ const handleProgressCheck = async () => {
 };
 
 const achievements = () => {
-  if (!progressTableData.value || progressTableData.value.length === 0) {
+  if (!selectedRows.value || selectedRows.value.length === 0) {
     alert("データがありません。");
     return;
   }
@@ -177,10 +186,10 @@ const achievements = () => {
   // CSVデータ構築
   const csvContent = [
     "\uFEFF" + headers.join(","), // BOM付きヘッダー
-    ...progressTableData.value.map((row) => [
+    ...selectedRows.value.map((row) => [
       "P_NYUKO",                // 取込データ区分（固定値）
       filters.value.tokuisaki,  // 得意先コード
-      "",                       // 客先伝票番号
+      row.kyadenno,                       // 客先伝票番号
       row.denbyodata,           // 伝票日付
       row.kisandata,            // 起算日
       "", "", "", "", "", "", "", // 空白列
