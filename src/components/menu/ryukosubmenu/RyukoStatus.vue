@@ -254,6 +254,7 @@ const handleSave = async () => {
     // ログイン時のセンターコードを取得
     const centercd = authStore.centerId;
 
+    
     // expirationDateをISO形式で送信
     const payload = {
   centercd, // センターコードを追加
@@ -416,8 +417,9 @@ const handleProgressCheck = async () => {
 
     // 日付フォーマット修正
     const formattedDate = filters.value.arrivalDate
-      ? filters.value.arrivalDate.replace(/-/g, '/').replace('/0', '/')
-      : "";
+  ? filters.value.arrivalDate.replace(/^(\d{4})-(0?)(\d{1,2})-(0?)(\d{1,2})$/, "$1/$3/$5")
+  : "";
+
 
     // `progressFilters`の値を設定
     progressFilters.value.arrivalDate = formattedDate;
