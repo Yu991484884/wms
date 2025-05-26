@@ -230,7 +230,7 @@ const deleteAllRows = async () => {
       };
     });
 
-    const response = await axios.post("https://www.hokuohylogi.com:8091/tLocationT/deleteByConditions", deleteConditions, {
+    const response = await axios.post("https://www.hokuohylogi.com/tLocationT/deleteByConditions", deleteConditions, {
       params: { centercd },
       headers: { "Content-Type": "application/json" },
     });
@@ -303,7 +303,7 @@ const searchByProductName = async () => {
   }
 
   try {
-    const response = await axios.get("https://www.hokuohylogi.com:8091/tLocationT/searchByProductName", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByProductName", {
       params: {
         syohinmei: filters.value.syohinmei,
         centercd: authStore.centerId,
@@ -344,7 +344,7 @@ const searchByLocation = async () => {
   }
 
   try {
-    const response = await axios.get("https://www.hokuohylogi.com:8091/tLocationT/searchByLocation", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByLocation", {
       params: {
         locationdata: filters.value.locationdata,
         centercd: authStore.centerId,
@@ -396,7 +396,7 @@ const handleFileChange = async (event) => {
       formData.append("file", utf8File);
       formData.append("centercd", authStore.centerId);
 
-      const apiUrl = "https://www.hokuohylogi.com:8091";
+      const apiUrl = "https://www.hokuohylogi.com";
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
