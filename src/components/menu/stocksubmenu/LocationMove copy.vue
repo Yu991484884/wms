@@ -9,8 +9,18 @@
     id="arrival-date"
     class="filter-input"
     placeholder="例: A1-01-01"
-    v-model="filters.locationdata"
   />
+</div>
+
+
+<div class="filter-item">
+  <label for="order-number">得意先</label>
+  <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
+    <option value=""></option>
+    <option v-for="tokuisaki in tokuisakiList" :key="tokuisaki.tokuisakicd" :value="tokuisaki.tokuisakicd">
+      {{ tokuisaki.tokuisakinm }}
+    </option>
+  </select>
 </div>
 
 <div class="filter-item">
@@ -20,15 +30,13 @@
     id="syohinmei"
     class="filter-input"
     placeholder="例：商品名"
-    v-model="filters.syohinmei"
   />
 </div>
 
       <!-- 商品一覧ボタン -->
-      <button class="search-button" @click="searchByProductName"><Search class="icon" /> 商品検索</button>
-
+      <button class="search-button"><Search class="icon" /> 商品検索</button>
       <!-- 新規登録ボタン -->
-      <button class="search-button" @click="searchByLocation"><Search class="icon" /> ロケ検索</button>
+      <button class="search-button"><Search class="icon" /> ロケ検索</button>
 
       <!-- 取込ボタン -->
       <button class="search-button" @click="triggerFileUpload">
@@ -43,7 +51,6 @@
         accept=".csv"
         style="display: none"
       />
-
     </div>
 
         <!-- ボタン追加部分 -->
@@ -66,12 +73,11 @@
         <el-table-column prop="tokuisaki" label="得意先" width="100" />
         <el-table-column prop="syohincd" label="商品CD" width="120" />
         <el-table-column prop="syohinmei" label="商品名" width="300" />
-        <el-table-column prop="suryo2" label="在庫総バラ" width="100" />
         <el-table-column prop="expirationdate" label="賞味期限" width="120" />
-        <el-table-column prop="locationdata" label="ロケーション" width="120" />
-        <el-table-column prop="irisu" label="入数" width="60" />
+        <el-table-column prop="location" label="ロケーション" width="120" />
         <el-table-column prop="kesu" label="ケース" width="70" />
         <el-table-column prop="bara" label="バラ" width="60" />
+        <el-table-column prop="irisu" label="入数" width="60" />
         <el-table-column prop="supplier" label="サプライヤ様" width="auto" />
 
         <!-- ボタン列 -->
@@ -116,7 +122,7 @@
     <div v-if="isChildViewVisible" class="modal-overlay">
   <div class="modal">
     <div class="modal-header">
-      <h2>ロケ移動予定商品</h2>
+      <h2>入庫予定商品</h2>
     </div>
     <div class="modal-body">
       <!-- 編集フィールド -->
@@ -129,8 +135,8 @@
         <input id="syohinmei" v-model="selectedRowData.syohinmei" class="modal-input" disabled/>
       </div>
       <div class="field">
-        <label for="suryo2">総バラ:</label>
-        <input id="suryo2" v-model="selectedRowData.suryo2" class="modal-input" disabled/>
+        <label for="nyukoyoteisu">入庫予定数:</label>
+        <input id="nyukoyoteisu" type="number" v-model="selectedRowData.nyukoyoteisu" class="modal-input" />
       </div>
       <div class="field">
         <label for="irisu">入数:</label>
@@ -149,8 +155,8 @@
         <input id="bara" type="number" v-model="selectedRowData.bara" class="modal-input" disabled/>
       </div>
       <div class="field">
-        <label for="locationdata">ロケーション:</label>
-        <input id="locationdata" type="text" v-model="selectedRowData.locationdata" class="modal-input" disabled/>
+        <label for="location">ロケーション:</label>
+        <input id="location" type="text" v-model="selectedRowData.location" class="modal-input" disabled/>
       </div>
       <div class="field">
         <label for="supplier">サプライヤ様:</label>
@@ -171,78 +177,139 @@
 import { Upload, Search } from "@element-plus/icons-vue";
 import axios from "axios";
 import { ref } from "vue";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore } from "@/stores/auth"; // 認証ストアからセンターコードを取得
+import { onMounted, computed } from "vue";
 
 
+// 得意先リストデータ
+const tokuisakiList = ref([]);
+
+// ログイン時のセンターコードを取得
 const authStore = useAuthStore();
+const centercd = authStore.centerId; // ログイン中のセンターコード
 
-const filters = ref({
-  syohinmei: "",
-  locationdata: []
+// 得意先リストをバックエンドから取得する関数
+const fetchTokuisakiList = async () => {
+  try {
+    const response = await axios.get("https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter", {
+      params: { centercd }, // センターコードを送信
+    });
 
-});
-const fileInput = ref(null);
-const successModalVisible = ref(false);
-const selectedRowData = ref({});
-const isChildViewVisible = ref(false);
-
-const triggerFileUpload = () => fileInput.value?.click();
-
-const closeChildView = () => (isChildViewVisible.value = false);
-
-
-const tableData = ref([]);
-const selectedRows = ref([]);
-
-const handleSelectionChange = (rows) => {
-  selectedRows.value = rows
+    if (response.data && Array.isArray(response.data)) {
+      tokuisakiList.value = response.data; // 得意先リストを保存
+    } else {
+      console.error("得意先データが不正です:", response.data);
+    }
+  } catch (error) {
+    console.error("得意先データの取得中にエラーが発生しました:", error);
+    alert("得意先データの取得に失敗しました。再試行してください。");
+  }
 };
 
+// ページ遷移時にデータを取得
+onMounted(() => {
+  fetchTokuisakiList();
+});
+
+const fileInput = ref(null);
+const successModalVisible = ref(false); // モーダル表示状態を管理
+const selectedRowData = ref({}); // 子ビューに表示する選択された行データ
+const isChildViewVisible = ref(false); // 子ビューの表示状態
+
+const triggerFileUpload = () => {
+  if (fileInput.value) {
+    fileInput.value.click(); // ファイル選択ダイアログを表示
+  }
+};
+
+// 検索条件
+const filters = ref({
+  arrivalDate: "",
+  tokuisaki: "",
+});
+
+// 得意先コードを得意先名に変換するためのマップを動的に生成
+const tokuisakicdMap = computed(() => {
+  const map = {};
+  tokuisakiList.value.forEach((item) => {
+    map[item.tokuisakicd] = item.tokuisakinm;
+  });
+  return map;
+});
+
+const eigyosyocdMap = {
+  "0005": "岩槻センター",
+  "0001": "大宮センター",
+  "0003": "浮島センター",
+  "0004": "厚木センター",
+};
+
+const closeChildView=()=>{
+  isChildViewVisible.value=false;
+}
+
+// 表データ
+const tableData = ref([]);
+const selectedRows = ref([]); // 選択された行を保存する配列
+
+// 選択された行を取得する処理
+const handleSelectionChange = (rows) => {
+  selectedRows.value = rows.map((row) => row.ryukono); // `ryukono`だけ保存
+};
+
+// 削除完了モーダルの表示状態とメッセージ
 const deleteModalVisible = ref(false);
 const deleteModalMessage = ref("");
-const closeDeleteModal = () => (deleteModalVisible.value = false);
 
-const formatDate = (str) => {
-  if (!str) return "";
-  const [y, m, d] = str.split("/");
-  if (!y || !m || !d) return "";
-  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+// 削除完了モーダルを閉じる
+const closeDeleteModal = () => {
+  deleteModalVisible.value = false;
 };
 
-
+// 一括削除処理
 const deleteAllRows = async () => {
-  if (!selectedRows.value.length) {
+  if (selectedRows.value.length === 0) {
     alert("削除対象の行を選択してください。");
     return;
   }
 
   try {
+    // ログイン中のセンターコードを取得
     const centercd = authStore.centerId;
 
-    // 条件を整形（賞味期限は yyyy/MM/dd に変換）
-    const deleteConditions = selectedRows.value.map(row => {
-      const [y, m, d] = (row.expirationdate || "").split("-");
-      return {
-        tokuisaki: row.tokuisaki,
-        syohincd: row.syohincd,
-        expirationdate: `${y}/${parseInt(m, 10)}/${parseInt(d, 10)}`,
-        locationdata: row.locationdata
-      };
-    });
+        // サーバーへ削除リクエストを送信
+    // const response = await axios.post("https://www.hokuohylogi.com/receiving/deleteBatch", {
+    //   ryukonoList: selectedRows.value,
+    //   centercd, // センターコードを追加
+    // });
 
-    const response = await axios.post("http://192.168.10.127:8091/tLocationT/deleteByConditions", deleteConditions, {
-      params: { centercd },
-      headers: { "Content-Type": "application/json" },
+    // サーバーへ削除リクエストを送信
+    const apiUrl = "https://www.hokuohylogi.com/receiving/deleteBatch";
+    const response = await axios.post(apiUrl, { ryukonoList: selectedRows.value }, {
+      params: { centercd }, // センターコードをクエリパラメータとして送信
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (response.status === 200) {
-      deleteModalMessage.value = response.data || "削除が完了しました。";
+      // モーダルメッセージを設定して表示
+      deleteModalMessage.value = "削除が完了しました。";
       deleteModalVisible.value = true;
+
+      // データの再取得
       await searchData();
+    } else {
+      alert(`削除に失敗しました: ステータスコード ${response.status}`);
     }
   } catch (error) {
-    alert("一括削除に失敗しました。");
-    console.error(error);
+    console.error("削除エラー:", error);
+
+    if (error.response && error.response.data) {
+      alert(`削除に失敗しました: ${error.response.data}`);
+    } else {
+      alert("削除に失敗しました: サーバーに接続できません");
+    }
   }
 };
 
@@ -250,135 +317,96 @@ const deleteAllRows = async () => {
 const rowCount = ref(0);
 
 const searchData = async () => {
+  if (!filters.value.arrivalDate || !filters.value.tokuisaki ) {
+    alert("全ての検索条件を入力してください。");
+    return;
+  }
+
+  // `arrivalDate` を `yyyy/MM/dd` に変換
+  const formattedDate = filters.value.arrivalDate.replace(/(\d{4})-(\d{2})-(\d{2})/, (_, year, month, day) => {
+    return `${year}/${parseInt(month, 10)}/${parseInt(day, 10)}`;
+  });
+
+  // ログイン時のセンターコードを取得
+  const centercd = authStore.centerId;
+
+  // const apiUrl = "https://www.hokuohylogi.com/receiving/search";
+  const apiUrl = "https://www.hokuohylogi.com/receiving/search";
+  const params = {
+    arrivalDate: formattedDate,
+    tokuisaki: filters.value.tokuisaki,
+    centercd, // センターコードをリクエストに追加
+  };
+
   try {
-    const apiUrl = "http://192.168.10.127:8091/tLocationT/listAll";
-    const response = await axios.get(apiUrl, {
-      params: { centercd: authStore.centerId },
-    });
-    if (Array.isArray(response.data)) {
+    const response = await axios.get(apiUrl, { params });
+    if (response.data && Array.isArray(response.data)) {
       tableData.value = response.data.map((item) => ({
-        tokuisaki: item.tokuisakicd || "",
+        tokuisaki: tokuisakicdMap[item.tokuisakicd] || item.tokuisakicd || "",
+        center: eigyosyocdMap[item.eigyosyocd] || item.eigyosyocd || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1), // ← ここで変換
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
+        nyukoyoteisu: item.nyukoyoteisu || "",
+        irisu: item.irisu1 || "",
+        supplier: item.mekasama || "",
         ryukono: item.ryukono || "",
       }));
+
+      // 行数を更新
       rowCount.value = tableData.value.length;
+    } else {
+      alert("該当するデータがありません。");
+      tableData.value = [];
+      rowCount.value = 0; // 行数をリセット
     }
   } catch (error) {
-    alert("データ取得に失敗しました。");
+    console.error("検索エラー:", error);
+    alert("データの取得に失敗しました");
     tableData.value = [];
-    rowCount.value = 0;
+    rowCount.value = 0; // 行数をリセット
   }
 };
 
+
 const handleSave = async () => {
   try {
+    //const apiUrl = "https://www.hokuohylogi.com/receiving/update";
+    // const apiUrl = "https://www.hokuohylogi.com/receiving/update";
+    const apiUrl = "https://www.hokuohylogi.com/receiving/update";
+
+        // ログイン時のセンターコードを取得
+    const centercd = authStore.centerId;
+    // expirationDateをISO形式で送信
     const payload = {
       ryukono: selectedRowData.value.ryukono,
       nyukoyoteisu: selectedRowData.value.nyukoyoteisu,
       irisu: selectedRowData.value.irisu,
-      centercd: authStore.centerId,
+      centercd,
     };
-    const response = await axios.put("https://www.hokuohylogi.com/receiving/update", payload);
-    alert(response.data);
+
+    console.log("送信データ:", payload);
+
+    const response = await axios.put(apiUrl, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // 成功時の処理
+    alert(response.data); // バックエンドのレスポンスを表示
+    // データの再取得
     await searchData();
     closeChildView();
   } catch (error) {
-    alert("データ送信に失敗しました。");
+    console.error("データ送信中にエラーが発生しました:", error);
+    alert("データ送信中にエラーが発生しました。再試行してください。");
   }
 };
-
-
-const searchByProductName = async () => {
-  if (!filters.value.syohinmei) {
-    alert("商品名を入力してください。");
-    return;
-  }
-
-  try {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByProductName", {
-      params: {
-        syohinmei: filters.value.syohinmei,
-        centercd: authStore.centerId,
-      },
-    });
-
-    if (Array.isArray(response.data)) {
-      tableData.value = response.data.map(item => ({
-        tokuisaki: item.tokuisakicd || "",
-        syohincd: item.syohincd || "",
-        syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1),
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
-      }));
-
-      rowCount.value = tableData.value.length;
-    } else {
-      alert("検索結果が見つかりません。");
-      tableData.value = [];
-      rowCount.value = 0;
-    }
-  } catch (error) {
-    console.error("検索エラー:", error);
-    alert("検索中にエラーが発生しました。");
-  }
-};
-
-const searchByLocation = async () => {
-  if (!filters.value.locationdata) {
-    alert("ロケーションを入力してください。");
-    return;
-  }
-
-  try {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByLocation", {
-      params: {
-        locationdata: filters.value.locationdata,
-        centercd: authStore.centerId,
-      },
-    });
-
-    if (Array.isArray(response.data)) {
-      tableData.value = response.data.map((item) => ({
-        tokuisaki: item.tokuisakicd || "",
-        syohincd: item.syohincd || "",
-        syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1),
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
-      }));
-      rowCount.value = tableData.value.length;
-    } else {
-      alert("該当データがありません。");
-    }
-  } catch (error) {
-    alert("ロケーション検索に失敗しました。");
-  }
-};
-
 
 
 const editRow = (row) => {
-  selectedRowData.value = { ...row };
-  isChildViewVisible.value = true;
+  selectedRowData.value = { ...row,originalExpirationDate: row.expirationdate,  }; // 行データをコピーして選択
+  isChildViewVisible.value = true; // 子ビューを表示
 };
 
 const handleFileChange = async (event) => {
@@ -387,33 +415,47 @@ const handleFileChange = async (event) => {
 
   try {
     const reader = new FileReader();
+
     reader.onload = async (e) => {
-      const csvText = e.target.result;
-      const utf8Blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
-      const utf8File = new File([utf8Blob], "modified.csv");
+      const csvContent = e.target.result;
+      const newBlob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+      const newFile = new File([newBlob], "modified.csv");
 
       const formData = new FormData();
-      formData.append("file", utf8File);
-      formData.append("centercd", authStore.centerId);
+      formData.append("file", newFile);
 
-      const apiUrl = "http://192.168.10.127:8091";
-      await axios.post(`${apiUrl}/tLocationT/import`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // ログイン時のセンターコードを取得して追加
+      const centercd = authStore.centerId;
+      formData.append("centercd", centercd); // センターコードをフォームデータに追加
+
+      //const apiUrl = "https://www.hokuohylogi.com";
+      const apiUrl = "https://www.hokuohylogi.com";
+
+      await axios.post(`${apiUrl}/receiving/uploadCsv`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
+      // モーダルを表示
       successModalVisible.value = true;
     };
-    reader.readAsText(file, "UTF-8");
+
+    reader.readAsText(file, "utf-8");
   } catch (error) {
-    alert("CSVアップロードに失敗しました。");
+    console.error("CSVファイルのアップロードに失敗しました", error);
+    alert("CSVアップロードに失敗しました: " + error.message);
   } finally {
-    event.target.value = null;
+    event.target.value = null; // ファイル選択をリセット
   }
 };
 
-const closeModal = () => (successModalVisible.value = false);
-</script>
 
+// モーダルを閉じる
+const closeModal = () => {
+  successModalVisible.value = false;
+};
+</script>
 
 <style scoped>
 /* 主容器样式 */

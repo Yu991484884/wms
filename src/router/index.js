@@ -167,6 +167,23 @@ const routes = [
     path: "/location",
     name: "LocationMove",
     component: () => import("../components/menu/stocksubmenu/LocationMove.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "在庫移動登録", path: "/location" },
+      ],
+    },
+  },
+  {
+    path: "/locationprogress",
+    name: "LocationProgress",
+    component: () => import("../components/menu/stocksubmenu/LocationProgress.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "在庫移動進捗", path: "/locationprogress" },
+      ],
+    },
   },
   {
     path: "/inventory",

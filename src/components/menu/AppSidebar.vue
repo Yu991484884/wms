@@ -15,7 +15,8 @@
         <router-link to="/ryukostatus" class="sub-item">入庫進捗</router-link>
         <router-link to="/ryukoconfirm" class="sub-item">入庫確定</router-link>
         <router-link to="/ryukoachievements" class="sub-item">入庫実績</router-link>
-
+        <router-link to="/ryukoachievements" class="sub-item">入庫看板発行</router-link>
+        <router-link to="/ryukoachievements" class="sub-item">入庫シール発行</router-link>
       </div>
 
       <!-- 出庫のメインメニュー -->
@@ -31,6 +32,7 @@
         <router-link to="/syukoschedule" class="sub-item">出庫予定登録</router-link>
         <router-link to="/syukostatus" class="sub-item">出庫進捗</router-link>
         <router-link to="/syukohikiate" class="sub-item">出庫引当処理</router-link>
+        <router-link to="/syukohikiate" class="sub-item">出庫残数比較</router-link>
         <router-link to="/syukogurosu" class="sub-item">出庫グロス帳票</router-link>
         <router-link to="/syukoconfirm" class="sub-item">出庫確定</router-link>
         <router-link to="/syukoachievements" class="sub-item">出庫実績</router-link>
@@ -65,7 +67,8 @@
         </i>
       </div>
       <div v-if="activeMenu === 'stock'" class="sub-menu">
-        <router-link to="/location" class="sub-item">ロケー移動</router-link>
+        <router-link to="/location" class="sub-item">在庫移動登録</router-link>
+        <router-link to="/locationprogress" class="sub-item">在庫移動進捗</router-link>
         <router-link to="/inventory" class="sub-item">棚卸メンテ</router-link>
       </div>
 
