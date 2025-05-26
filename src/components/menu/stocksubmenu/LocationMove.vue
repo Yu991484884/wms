@@ -251,7 +251,7 @@ const rowCount = ref(0);
 
 const searchData = async () => {
   try {
-    const apiUrl = "https://www.hokuohylogi.com:8091/tLocationT/listAll";
+    const apiUrl = "https://www.hokuohylogi.com/tLocationT/listAll";
     const response = await axios.get(apiUrl, {
       params: { centercd: authStore.centerId },
     });
