@@ -24,11 +24,28 @@
   />
 </div>
 
+<div class="filter-item">
+  <label for="workdate">作業日</label>
+  <el-date-picker
+    v-model="filters.workdata"
+    type="date"
+    placeholder="作業日を選択"
+    format="YYYY/MM/DD"
+    value-format="YYYY/MM/DD"
+    id="workdate"
+    class="filter-input"
+  />
+</div>
+
       <!-- 商品一覧ボタン -->
       <button class="search-button" @click="searchByProductName"><Search class="icon" /> 商品検索</button>
 
       <!-- 新規登録ボタン -->
       <button class="search-button" @click="searchByLocation"><Search class="icon" /> ロケ検索</button>
+      <!-- 作業日検索ボタン -->
+      <button class="search-button" @click="searchByWorkDate">
+        <Search class="icon" /> 作業日検索
+      </button>
 
       <!-- 取込ボタン -->
       <button class="search-button" @click="triggerFileUpload">
@@ -178,7 +195,8 @@ const authStore = useAuthStore();
 
 const filters = ref({
   syohinmei: "",
-  locationdata: []
+  locationdata: [],
+  workdata: ""
 
 });
 const fileInput = ref(null);
@@ -219,21 +237,20 @@ const deleteAllRows = async () => {
   try {
     const centercd = authStore.centerId;
 
-    // 条件を整形（賞味期限は yyyy/MM/dd に変換）
-    const deleteConditions = selectedRows.value.map(row => {
-      const [y, m, d] = (row.expirationdate || "").split("-");
-      return {
-        tokuisaki: row.tokuisaki,
-        syohincd: row.syohincd,
-        expirationdate: `${y}/${parseInt(m, 10)}/${parseInt(d, 10)}`,
-        locationdata: row.locationdata
-      };
-    });
+    // 削除条件をuuidのみで構成
+    const deleteConditions = selectedRows.value.map(row => ({
+      uuid: row.uuid
+    }));
 
-    const response = await axios.post("https://www.hokuohylogi.com/tLocationT/deleteByConditions", deleteConditions, {
-      params: { centercd },
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = await axios.post(
+      "https://www.hokuohylogi.com/tLocationT/deleteByConditions",
+      //"http://192.168.10.127:8091/tLocationT/deleteByConditions",
+      deleteConditions,
+      {
+        params: { centercd },
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
     if (response.status === 200) {
       deleteModalMessage.value = response.data || "削除が完了しました。";
@@ -247,16 +264,20 @@ const deleteAllRows = async () => {
 };
 
 
+
 const rowCount = ref(0);
 
 const searchData = async () => {
   try {
     const apiUrl = "https://www.hokuohylogi.com/tLocationT/listAll";
+    //const apiUrl = "http://192.168.10.127:8091/tLocationT/listAll";
     const response = await axios.get(apiUrl, {
       params: { centercd: authStore.centerId },
     });
     if (Array.isArray(response.data)) {
       tableData.value = response.data.map((item) => ({
+        uuid: item.uuid,
+        workdata:formatDate(item.workdata), //
         tokuisaki: item.tokuisakicd || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
@@ -277,6 +298,51 @@ const searchData = async () => {
     rowCount.value = 0;
   }
 };
+
+
+const searchByWorkDate = async () => {
+  if (!filters.value.workdata) {
+    alert("作業日を入力してください。");
+    return;
+  }
+
+  try {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByWorkDate", {
+      //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByWorkDate", {
+      params: {
+        workdata: filters.value.workdata,
+        centercd: authStore.centerId,
+      },
+    });
+
+    if (Array.isArray(response.data)) {
+      tableData.value = response.data.map(item => ({
+        workdata: formatDate(item.workdata),
+        uuid: item.uuid,
+        tokuisaki: item.tokuisakicd || "",
+        syohincd: item.syohincd || "",
+        syohinmei: item.syohinmei || "",
+        suryo2: item.suryo2 || "",
+        expirationdate: formatDate(item.roto1),
+        locationdata: item.locationdata || "",
+        kesu: item.kesu || 0,
+        bara: item.bara || 0,
+        irisu: item.irisu1 || 0,
+        supplier: item.sapuraiyanm || "",
+        ryukono: item.ryukono || "",
+      }));
+
+      rowCount.value = tableData.value.length;
+    } else {
+      alert("検索結果が見つかりません。");
+      tableData.value = [];
+      rowCount.value = 0;
+    }
+  } catch (error) {
+    alert("作業日検索に失敗しました。");
+  }
+};
+
 
 const handleSave = async () => {
   try {
@@ -312,6 +378,8 @@ const searchByProductName = async () => {
 
     if (Array.isArray(response.data)) {
       tableData.value = response.data.map(item => ({
+        workdata:formatDate(item.workdata), //
+        uuid: item.uuid,
         tokuisaki: item.tokuisakicd || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
@@ -353,6 +421,8 @@ const searchByLocation = async () => {
 
     if (Array.isArray(response.data)) {
       tableData.value = response.data.map((item) => ({
+        workdata:formatDate(item.workdata), //
+        uuid: item.uuid,
         tokuisaki: item.tokuisakicd || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
@@ -397,6 +467,7 @@ const handleFileChange = async (event) => {
       formData.append("centercd", authStore.centerId);
 
       const apiUrl = "https://www.hokuohylogi.com";
+      //const apiUrl = "http://192.168.10.127:8091";
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -447,7 +518,7 @@ const closeModal = () => (successModalVisible.value = false);
 .filter-item {
   display: flex;
   flex-direction: column;
-  min-width: 200px;
+  min-width: 150px;
 }
 
 /* 输入框样式 */
