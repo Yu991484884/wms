@@ -75,6 +75,7 @@
 </div>
     <!-- 表格容器 -->
     <div class="table-container">
+    
       <el-table :data="tableData" style="width: 100%" height="500" border @selection-change="handleSelectionChange" row-class-name="BackgroundColor" >
         <!-- チェックボックス列 -->
         <el-table-column type="selection" width="55" fixed="left" />
