@@ -11,6 +11,7 @@
           v-model="filters.arrivalDate"
         />
       </div>
+      
       <div class="filter-item">
   <label for="order-number">得意先</label>
   <select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">

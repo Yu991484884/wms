@@ -170,7 +170,29 @@ const routes = [
     meta: {
       breadcrumb: [
         { label: "ホーム", path: "/" },
-        { label: "在庫移動登録", path: "/location" },
+        { label: "補充処理登録", path: "/location" },
+      ],
+    },
+  },
+    {
+    path: "/refill",
+    name: "RefillMove",
+    component: () => import("../components/menu/stocksubmenu/RefillMove.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "補充帳票印刷", path: "/refill" },
+      ],
+    },
+  },
+      {
+    path: "/pdf-preview",
+    name: "PdfPreview",
+    component: () => import("../components/menu/stocksubmenu/PdfPreview.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "商品リストプレビュー", path: "/pdf-preview" },
       ],
     },
   },

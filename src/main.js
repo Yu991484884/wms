@@ -5,6 +5,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import ja from 'element-plus/es/locale/lang/ja'
 import { createPinia } from "pinia"
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 
 const app = createApp(App)
@@ -20,6 +21,7 @@ const observerErrorHandler = (err) => {
 };
 
 window.addEventListener('error', observerErrorHandler);
+pinia.use(piniaPluginPersistedstate) 
 
 app.use(pinia); // Pinia を使用
 app.use(ElementPlus, {

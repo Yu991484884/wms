@@ -1,28 +1,9 @@
 <template>
   <div class="container">
+
     <!-- フィルタコンテナ -->
     <div class="filter-container">
-      <div class="filter-item">
-  <label for="arrival-date">ロケーション</label>
-  <input
-    type="text"
-    id="arrival-date"
-    class="filter-input"
-    placeholder="例: A1-01-01"
-    v-model="filters.locationdata"
-  />
-</div>
 
-<div class="filter-item">
-  <label for="product-code">商品名</label>
-  <input
-    type="text"
-    id="syohinmei"
-    class="filter-input"
-    placeholder="例：商品名"
-    v-model="filters.syohinmei"
-  />
-</div>
 
 <div class="filter-item">
   <label for="workdate">作業日</label>
@@ -37,19 +18,34 @@
   />
 </div>
 
+      <div class="filter-item">
+  <label for="order-number">得意先</label>
+<select id="tokuisaki" class="filter-select" v-model="filters.tokuisaki">
+  <option value=""></option>
+  <option
+    v-for="tokuisaki in tokuisakiList"
+    :key="tokuisaki.tokuisakicd"
+    :value="tokuisaki.tokuisakicd"
+  >
+    {{ tokuisaki.tokuisakinm }}
+  </option>
+</select>
+</div>
+
+
       <!-- 商品一覧ボタン -->
-      <button class="search-button" @click="searchByProductName"><Search class="icon" /> 商品検索</button>
+      <!-- <button class="search-button" @click="searchByProductName"><Search class="icon" /> 商品検索</button> -->
 
       <!-- 新規登録ボタン -->
-      <button class="search-button" @click="searchByLocation"><Search class="icon" /> ロケ検索</button>
+      <!-- <button class="search-button" @click="searchByLocation"><Search class="icon" /> ロケ検索</button> -->
       <!-- 作業日検索ボタン -->
-      <button class="search-button" @click="searchByWorkDate">
+      <!-- <button class="search-button" @click="searchByWorkDate">
         <Search class="icon" /> 作業日検索
-      </button>
+      </button> -->
 
       <!-- 取込ボタン -->
       <button class="search-button" @click="triggerFileUpload">
-        <Upload class="icon" /> 在庫取込
+        <Upload class="icon" /> 補充DATA取込
       </button>
 
       <!-- ファイル選択 -->
@@ -69,14 +65,21 @@
     <span>合計: {{ rowCount }} 行</span>
   </div>
   <div class="button-group">
-    <button class="header-button search-button" @click="searchData">全件検索</button>
+    <button class="header-button search-button" @click="searchData">指定条件検索</button>
     <button class="header-button delete-all-button" @click="deleteAllRows">選択削除</button>
   </div>
 </div>
     <!-- 表格容器 -->
     <div class="table-container">
     
-      <el-table :data="tableData" style="width: 100%" height="500" border @selection-change="handleSelectionChange" row-class-name="BackgroundColor" >
+      <el-table
+  :data="paginatedData"
+  style="width: 100%"
+  height="500"
+  border
+  @selection-change="handleSelectionChange"
+  row-class-name="BackgroundColor"
+>
         <!-- チェックボックス列 -->
         <el-table-column type="selection" width="55" fixed="left" />
 
@@ -99,6 +102,15 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+  v-model:current-page="currentPage"
+  v-model:page-size="pageSize"
+  :page-sizes="[100, 200, 500]"
+  :total="tableData.length"
+  layout="total, sizes, prev, pager, next, jumper"
+  @size-change="handleSizeChange"
+  @current-change="handlePageChange"
+/>
     </div>
 
     <!-- モーダルウィンドウ -->
@@ -181,23 +193,76 @@
     </div>
   </div>
 </div>
+<!-- 検索結果なしモーダル -->
+<div v-if="noDataModalVisible" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>通知</h2>
+    </div>
+    <div class="modal-body">
+      <p>指定条件のデータがありません。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="close-button" @click="noDataModalVisible = false">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- 削除確認モーダル -->
+<div v-if="confirmDeleteModalVisible" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>確認</h2>
+    </div>
+    <div class="modal-body">
+      <p>指定条件のデータを削除します。実行してよろしいでしょうか？</p>
+    </div>
+    <div class="modal-footer">
+      <button class="confirm-button" @click="executeDelete">はい</button>
+      <button class="cancel-button" @click="confirmDeleteModalVisible = false">いいえ</button>
+    </div>
+  </div>
+</div>
+
   </div>
 
 </template>
 
 <script setup>
-import { Upload, Search } from "@element-plus/icons-vue";
+import { Upload,  } from "@element-plus/icons-vue";
 import axios from "axios";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import { onMounted} from "vue";
+import { computed } from "vue";
 
+const currentPage = ref(1);
+const pageSize = ref(500);
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return tableData.value.slice(start, end);
+});
+
+const handleSizeChange = (newSize) => {
+  pageSize.value = newSize;
+  currentPage.value = 1;
+};
+
+const handlePageChange = (newPage) => {
+  currentPage.value = newPage;
+};
+
+const noDataModalVisible = ref(false);
 
 const authStore = useAuthStore();
 
 const filters = ref({
   syohinmei: "",
   locationdata: [],
-  workdata: ""
+  workdata: "",
+  tokuisaki: ""
 
 });
 const fileInput = ref(null);
@@ -208,7 +273,7 @@ const isChildViewVisible = ref(false);
 const triggerFileUpload = () => fileInput.value?.click();
 
 const closeChildView = () => (isChildViewVisible.value = false);
-
+const confirmDeleteModalVisible = ref(false);
 
 const tableData = ref([]);
 const selectedRows = ref([]);
@@ -216,10 +281,14 @@ const selectedRows = ref([]);
 const handleSelectionChange = (rows) => {
   selectedRows.value = rows
 };
+currentPage.value = 1; // 検索時に1ページ目に戻す
 
 const deleteModalVisible = ref(false);
 const deleteModalMessage = ref("");
 const closeDeleteModal = () => (deleteModalVisible.value = false);
+const centercd = authStore.centerId; // ログイン中のセンターコード
+// 得意先リストデータ
+const tokuisakiList = ref([]);
 
 const formatDate = (str) => {
   if (!str) return "";
@@ -228,24 +297,47 @@ const formatDate = (str) => {
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 };
 
+// 得意先リストをバックエンドから取得する関数
+const fetchTokuisakiList = async () => {
+  try {
+    const response = await axios.get("https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter", {
+      params: { centercd }, // センターコードを送信
+    });
 
-const deleteAllRows = async () => {
+    if (response.data && Array.isArray(response.data)) {
+      tokuisakiList.value = response.data; // 得意先リストを保存
+    } else {
+      console.error("得意先データが不正です:", response.data);
+    }
+  } catch (error) {
+    console.error("得意先データの取得中にエラーが発生しました:", error);
+    alert("得意先データの取得に失敗しました。再試行してください。");
+  }
+};
+
+// onMountedで自動取得
+onMounted(() => {
+  fetchTokuisakiList();
+});
+
+
+const deleteAllRows = () => {
   if (!selectedRows.value.length) {
     alert("削除対象の行を選択してください。");
     return;
   }
+  confirmDeleteModalVisible.value = true;
+};
 
+const executeDelete = async () => {
   try {
     const centercd = authStore.centerId;
-
-    // 削除条件をuuidのみで構成
     const deleteConditions = selectedRows.value.map(row => ({
-      uuid: row.uuid
+      uuid: row.uuid,
     }));
 
     const response = await axios.post(
       "https://www.hokuohylogi.com/tLocationT/deleteByConditions",
-      //"http://192.168.10.127:8091/tLocationT/deleteByConditions",
       deleteConditions,
       {
         params: { centercd },
@@ -261,65 +353,50 @@ const deleteAllRows = async () => {
   } catch (error) {
     alert("一括削除に失敗しました。");
     console.error(error);
+  } finally {
+    confirmDeleteModalVisible.value = false;
   }
 };
+
 
 
 
 const rowCount = ref(0);
 
 const searchData = async () => {
-  try {
-    const apiUrl = "https://www.hokuohylogi.com/tLocationT/listAll";
-    //const apiUrl = "http://192.168.10.127:8091/tLocationT/listAll";
-    const response = await axios.get(apiUrl, {
-      params: { centercd: authStore.centerId },
-    });
-    if (Array.isArray(response.data)) {
-      tableData.value = response.data.map((item) => ({
-        uuid: item.uuid,
-        workdata:formatDate(item.workdata), //
-        tokuisaki: item.tokuisakicd || "",
-        syohincd: item.syohincd || "",
-        syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1), // ← ここで変換
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
-      }));
-      rowCount.value = tableData.value.length;
-    }
-  } catch (error) {
-    alert("データ取得に失敗しました。");
-    tableData.value = [];
-    rowCount.value = 0;
-  }
-};
+  const workDate = filters.value.workdata;
+  const selectedTokuisakiCd = filters.value.tokuisaki;
 
-
-const searchByWorkDate = async () => {
-  if (!filters.value.workdata) {
-    alert("作業日を入力してください。");
+  if (!workDate || !selectedTokuisakiCd) {
+    alert("作業日と得意先を選択してください。");
     return;
   }
 
+  const selectedTokuisaki = tokuisakiList.value.find(
+    (item) => item.tokuisakicd === selectedTokuisakiCd
+  );
+
+  if (!selectedTokuisaki) {
+    alert("得意先情報が不正です。");
+    return;
+  }
+
+  console.log("検索条件:", workDate, selectedTokuisakiCd);
+
   try {
-    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByWorkDate", {
-      //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByWorkDate", {
+    // const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
       params: {
-        workdata: filters.value.workdata,
+        workdata: workDate,
+        tokuisakicd: selectedTokuisakiCd,
         centercd: authStore.centerId,
       },
     });
 
     if (Array.isArray(response.data)) {
-      tableData.value = response.data.map(item => ({
-        workdata: formatDate(item.workdata),
+      tableData.value = response.data.map((item) => ({
         uuid: item.uuid,
+        workdata: formatDate(item.workdata),
         tokuisaki: item.tokuisakicd || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
@@ -332,17 +409,98 @@ const searchByWorkDate = async () => {
         supplier: item.sapuraiyanm || "",
         ryukono: item.ryukono || "",
       }));
-
       rowCount.value = tableData.value.length;
+        if (rowCount.value === 0) {
+    noDataModalVisible.value = true; // ← ここで表示
+  }
     } else {
-      alert("検索結果が見つかりません。");
+      alert("該当データがありません。");
       tableData.value = [];
       rowCount.value = 0;
     }
   } catch (error) {
-    alert("作業日検索に失敗しました。");
+    console.error("検索エラー:", error);
+    alert("検索に失敗しました。");
   }
 };
+
+
+
+// const searchData = async () => {
+//   try {
+//     const apiUrl = "https://www.hokuohylogi.com/tLocationT/listAll";
+//     //const apiUrl = "http://192.168.10.127:8091/tLocationT/listAll";
+//     const response = await axios.get(apiUrl, {
+//       params: { centercd: authStore.centerId },
+//     });
+//     if (Array.isArray(response.data)) {
+//       tableData.value = response.data.map((item) => ({
+//         uuid: item.uuid,
+//         workdata:formatDate(item.workdata), //
+//         tokuisaki: item.tokuisakicd || "",
+//         syohincd: item.syohincd || "",
+//         syohinmei: item.syohinmei || "",
+//         suryo2: item.suryo2 || "",
+//         expirationdate: formatDate(item.roto1), // ← ここで変換
+//         locationdata: item.locationdata || "",
+//         kesu: item.kesu || 0,
+//         bara: item.bara || 0,
+//         irisu: item.irisu1 || 0,
+//         supplier: item.sapuraiyanm || "",
+//         ryukono: item.ryukono || "",
+//       }));
+//       rowCount.value = tableData.value.length;
+//     }
+//   } catch (error) {
+//     alert("データ取得に失敗しました。");
+//     tableData.value = [];
+//     rowCount.value = 0;
+//   }
+// };
+
+
+// const searchByWorkDate = async () => {
+//   if (!filters.value.workdata) {
+//     alert("作業日を入力してください。");
+//     return;
+//   }
+
+//   try {
+//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByWorkDate", {
+//       //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByWorkDate", {
+//       params: {
+//         workdata: filters.value.workdata,
+//         centercd: authStore.centerId,
+//       },
+//     });
+
+//     if (Array.isArray(response.data)) {
+//       tableData.value = response.data.map(item => ({
+//         workdata: formatDate(item.workdata),
+//         uuid: item.uuid,
+//         tokuisaki: item.tokuisakicd || "",
+//         syohincd: item.syohincd || "",
+//         syohinmei: item.syohinmei || "",
+//         suryo2: item.suryo2 || "",
+//         expirationdate: formatDate(item.roto1),
+//         locationdata: item.locationdata || "",
+//         kesu: item.kesu || 0,
+//         bara: item.bara || 0,
+//         irisu: item.irisu1 || 0,
+//         supplier: item.sapuraiyanm || "",
+//         ryukono: item.ryukono || "",
+//       }));
+
+//       rowCount.value = tableData.value.length;
+//     } else {
+//       alert("検索結果が見つかりません。");
+//       tableData.value = [];
+//       rowCount.value = 0;
+//     }
+//   } catch (error) {
+//     alert("作業日検索に失敗しました。");
+//   }
+// };
 
 
 const handleSave = async () => {
@@ -363,87 +521,87 @@ const handleSave = async () => {
 };
 
 
-const searchByProductName = async () => {
-  if (!filters.value.syohinmei) {
-    alert("商品名を入力してください。");
-    return;
-  }
+// const searchByProductName = async () => {
+//   if (!filters.value.syohinmei) {
+//     alert("商品名を入力してください。");
+//     return;
+//   }
 
-  try {
-    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByProductName", {
-      params: {
-        syohinmei: filters.value.syohinmei,
-        centercd: authStore.centerId,
-      },
-    });
+//   try {
+//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByProductName", {
+//       params: {
+//         syohinmei: filters.value.syohinmei,
+//         centercd: authStore.centerId,
+//       },
+//     });
 
-    if (Array.isArray(response.data)) {
-      tableData.value = response.data.map(item => ({
-        workdata:formatDate(item.workdata), //
-        uuid: item.uuid,
-        tokuisaki: item.tokuisakicd || "",
-        syohincd: item.syohincd || "",
-        syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1),
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
-      }));
+//     if (Array.isArray(response.data)) {
+//       tableData.value = response.data.map(item => ({
+//         workdata:formatDate(item.workdata), //
+//         uuid: item.uuid,
+//         tokuisaki: item.tokuisakicd || "",
+//         syohincd: item.syohincd || "",
+//         syohinmei: item.syohinmei || "",
+//         suryo2: item.suryo2 || "",
+//         expirationdate: formatDate(item.roto1),
+//         locationdata: item.locationdata || "",
+//         kesu: item.kesu || 0,
+//         bara: item.bara || 0,
+//         irisu: item.irisu1 || 0,
+//         supplier: item.sapuraiyanm || "",
+//         ryukono: item.ryukono || "",
+//       }));
 
-      rowCount.value = tableData.value.length;
-    } else {
-      alert("検索結果が見つかりません。");
-      tableData.value = [];
-      rowCount.value = 0;
-    }
-  } catch (error) {
-    console.error("検索エラー:", error);
-    alert("検索中にエラーが発生しました。");
-  }
-};
+//       rowCount.value = tableData.value.length;
+//     } else {
+//       alert("検索結果が見つかりません。");
+//       tableData.value = [];
+//       rowCount.value = 0;
+//     }
+//   } catch (error) {
+//     console.error("検索エラー:", error);
+//     alert("検索中にエラーが発生しました。");
+//   }
+// };
 
-const searchByLocation = async () => {
-  if (!filters.value.locationdata) {
-    alert("ロケーションを入力してください。");
-    return;
-  }
+// const searchByLocation = async () => {
+//   if (!filters.value.locationdata) {
+//     alert("ロケーションを入力してください。");
+//     return;
+//   }
 
-  try {
-    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByLocation", {
-      params: {
-        locationdata: filters.value.locationdata,
-        centercd: authStore.centerId,
-      },
-    });
+//   try {
+//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByLocation", {
+//       params: {
+//         locationdata: filters.value.locationdata,
+//         centercd: authStore.centerId,
+//       },
+//     });
 
-    if (Array.isArray(response.data)) {
-      tableData.value = response.data.map((item) => ({
-        workdata:formatDate(item.workdata), //
-        uuid: item.uuid,
-        tokuisaki: item.tokuisakicd || "",
-        syohincd: item.syohincd || "",
-        syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1),
-        locationdata: item.locationdata || "",
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
-      }));
-      rowCount.value = tableData.value.length;
-    } else {
-      alert("該当データがありません。");
-    }
-  } catch (error) {
-    alert("ロケーション検索に失敗しました。");
-  }
-};
+//     if (Array.isArray(response.data)) {
+//       tableData.value = response.data.map((item) => ({
+//         workdata:formatDate(item.workdata), //
+//         uuid: item.uuid,
+//         tokuisaki: item.tokuisakicd || "",
+//         syohincd: item.syohincd || "",
+//         syohinmei: item.syohinmei || "",
+//         suryo2: item.suryo2 || "",
+//         expirationdate: formatDate(item.roto1),
+//         locationdata: item.locationdata || "",
+//         kesu: item.kesu || 0,
+//         bara: item.bara || 0,
+//         irisu: item.irisu1 || 0,
+//         supplier: item.sapuraiyanm || "",
+//         ryukono: item.ryukono || "",
+//       }));
+//       rowCount.value = tableData.value.length;
+//     } else {
+//       alert("該当データがありません。");
+//     }
+//   } catch (error) {
+//     alert("ロケーション検索に失敗しました。");
+//   }
+// };
 
 
 
@@ -800,5 +958,24 @@ html, body {
 .cancel-button:hover {
   background-color: #b3b3b3;
 }
-
+.el-pagination {
+  margin-top: 20px;
+  justify-content: center;
+}
+.modal-footer .confirm-button,
+.modal-footer .cancel-button {
+  width: 120px;
+  height: 40px;
+  font-size: 16px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #eaeaea;
+}
 </style>
