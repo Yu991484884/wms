@@ -384,7 +384,7 @@ const searchData = async () => {
   const location = filters.value.locationdata; // ← 新規追加
 
   if (!workDate || !selectedTokuisakiCd) {
-    alert("作業日と得意先を選択してください。");
+    alert("作業日と得意先とロケーションを選択してください。");
     return;
   }
 
@@ -398,8 +398,8 @@ const searchData = async () => {
   }
 
   try {
-    // const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
+    //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
       params: {
         workdata: workDate,
         tokuisakicd: selectedTokuisakiCd,
