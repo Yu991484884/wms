@@ -32,6 +32,20 @@
 </select>
 </div>
 
+
+<div>
+  <div class="filter-item">
+    指定ロケ
+  </div>
+  <el-input
+    v-model="filters.locationdata"
+    clearable
+    placeholder="ロケーション"
+  />
+</div>
+
+
+
 <button class="search-button" @click="generatePdfLocally">
   <Printer class="icon" /> 商品リスト印刷
 </button>
@@ -222,35 +236,33 @@ const generatePdfLocally = async () => {
 
     const pageRows = selectedRows.value.slice(i, i + rowsPerPage);
     const qrImages = await Promise.all(pageRows.map(row => generateQrBase64(row.syohincd)));
-    const body = pageRows.map(() => ["", "", "", "", "", ""]);
+    const body = pageRows.map(() => ["", "", "", ""]);
 
-  autoTable(doc, {
-    startY: 30,
-    margin: { left: marginLeft, right: marginRight },
-    head: [["得意先", "得意名", "商品CD", "商品名", "正規ロケ", "QR"]],
-    body: body,
-    columnStyles: {
-      0: { cellWidth: 33, halign: 'left'  },
-      1: { cellWidth: 40, halign: 'left' },
-      2: { cellWidth: 35, halign: 'left' },
-      3: { cellWidth: 95, halign: 'left' },
-      4: { cellWidth: 37, halign: 'left' },
-      5: { cellWidth: 30 },
-    },
-    styles: {
-      font: "ipag",
-      fontSize: 11,
-      cellPadding: 10,
-    },
-    headStyles: {
-      fillColor: [200, 200, 200],
-      fontStyle: "bold",
-      fontSize: 12,
-       halign: 'left'
-    },
-    theme: "grid",
+    autoTable(doc, {
+      startY: 30,
+      margin: { left: marginLeft, right: marginRight },
+      head: [["商品CD", "商品名", "作業ロケ", "QR"]],
+      body: body,
+      columnStyles: {
+        0: { cellWidth: 50, halign: 'left' },
+        1: { cellWidth: 120, halign: 'left' },
+        2: { cellWidth: 40, halign: 'left' },
+        3: { cellWidth: 50 }
+      },
+      styles: {
+        font: "ipag",
+        fontSize: 11,
+        cellPadding: 10,
+      },
+      headStyles: {
+        fillColor: [200, 200, 200],
+        fontStyle: "bold",
+        fontSize: 12,
+        halign: 'left'
+      },
+      theme: "grid",
       didDrawCell: (data) => {
-        if (data.section === 'body' && data.column.index === 5) {
+        if (data.section === 'body' && data.column.index === 3) {
           const imgData = qrImages[data.row.index];
           if (imgData) {
             const qrSize = 18;
@@ -262,13 +274,11 @@ const generatePdfLocally = async () => {
           const realData = pageRows[data.row.index];
           let text = "";
           switch (data.column.index) {
-            case 0: text = realData.tokuisaki; break;
-            case 1: text = realData.tokuisakinm || ""; break;
-            case 2: text = realData.syohincd || ""; break;
-            case 3: text = realData.syohinmei || ""; break;
-            case 4: text = realData.locationdata || ""; break;
+            case 0: text = realData.syohincd || ""; break;
+            case 1: text = realData.syohinmei || ""; break;
+            case 2: text = realData.locationdata || ""; break;
           }
-          if (data.column.index !== 5) {
+          if (data.column.index !== 3) {
             doc.text(text, data.cell.x + 2, data.cell.y + data.cell.height / 2 + 3);
           }
         }
@@ -280,6 +290,7 @@ const generatePdfLocally = async () => {
   pdfBlobUrl.value = URL.createObjectURL(pdfBlob);
   showPdfPreview.value = true;
 };
+
 
 
 
@@ -370,6 +381,7 @@ const rowCount = ref(0);
 const searchData = async () => {
   const workDate = filters.value.workdata;
   const selectedTokuisakiCd = filters.value.tokuisaki;
+  const location = filters.value.locationdata; // ← 新規追加
 
   if (!workDate || !selectedTokuisakiCd) {
     alert("作業日と得意先を選択してください。");
@@ -385,46 +397,35 @@ const searchData = async () => {
     return;
   }
 
-  console.log("検索条件:", workDate, selectedTokuisakiCd);
-
   try {
-    // const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
-    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
+    // const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
+    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
       params: {
         workdata: workDate,
         tokuisakicd: selectedTokuisakiCd,
+        locationdata: location, // ← APIへ送信する新パラメータ
         centercd: authStore.centerId,
       },
     });
 
     if (Array.isArray(response.data)) {
-tableData.value = response.data.map((item) => {
-  // ここで item.tokuisakicd に対応する得意先名を検索
-  const tokuisakiNm = tokuisakiList.value.find(
-    ts => ts.tokuisakicd === item.tokuisakicd
-  )?.tokuisakinm || "";
-
-  return {
-    uuid: item.uuid,
-    workdata: formatDate(item.workdata),
-    tokuisaki: item.tokuisakicd || "",
-    tokuisakinm: tokuisakiNm, // ← ここで反映される
-    syohincd: item.syohincd || "",
-    syohinmei: item.syohinmei || "",
-    suryo2: item.suryo2 || "",
-    expirationdate: formatDate(item.roto1),
-    locationdata: item.locationdata || "",
-    kesu: item.kesu || 0,
-    bara: item.bara || 0,
-    irisu: item.irisu1 || 0,
-    supplier: item.sapuraiyanm || "",
-    ryukono: item.ryukono || "",
-  };
-});
+      tableData.value = response.data.map((item) => ({
+        uuid: item.uuid,
+        workdata: formatDate(item.workdata),
+        tokuisaki: item.tokuisakicd || "",
+        syohincd: item.syohincd || "",
+        syohinmei: item.syohinmei || "",
+        suryo2: item.suryo2 || "",
+        expirationdate: formatDate(item.roto1),
+        locationdata: item.locationdata || "",
+        kesu: item.kesu || 0,
+        bara: item.bara || 0,
+        irisu: item.irisu1 || 0,
+        supplier: item.sapuraiyanm || "",
+        ryukono: item.ryukono || "",
+      }));
       rowCount.value = tableData.value.length;
-        if (rowCount.value === 0) {
-    noDataModalVisible.value = true; // ← ここで表示
-  }
+      if (rowCount.value === 0) noDataModalVisible.value = true;
     } else {
       alert("該当データがありません。");
       tableData.value = [];
@@ -435,6 +436,7 @@ tableData.value = response.data.map((item) => {
     alert("検索に失敗しました。");
   }
 };
+
 
 
 const editRow = (row) => {

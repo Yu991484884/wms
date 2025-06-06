@@ -33,6 +33,7 @@
 </div>
 
 
+
       <!-- 商品一覧ボタン -->
       <!-- <button class="search-button" @click="searchByProductName"><Search class="icon" /> 商品検索</button> -->
 
@@ -45,7 +46,7 @@
 
       <!-- 取込ボタン -->
       <button class="search-button" @click="triggerFileUpload">
-        <Upload class="icon" /> 補充DATA取込
+        <Upload class="icon" /> DATA取込
       </button>
 
       <!-- ファイル選択 -->
@@ -625,8 +626,8 @@ const handleFileChange = async (event) => {
       formData.append("file", utf8File);
       formData.append("centercd", authStore.centerId);
 
-      const apiUrl = "https://www.hokuohylogi.com";
-      //const apiUrl = "http://192.168.10.127:8091";
+      //const apiUrl = "https://www.hokuohylogi.com";
+      const apiUrl = "http://192.168.10.127:8091";
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

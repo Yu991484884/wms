@@ -170,7 +170,7 @@ const routes = [
     meta: {
       breadcrumb: [
         { label: "ホーム", path: "/" },
-        { label: "補充処理登録", path: "/location" },
+        { label: "在庫処理登録", path: "/location" },
       ],
     },
   },
