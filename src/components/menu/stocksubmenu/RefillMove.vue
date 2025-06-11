@@ -405,7 +405,7 @@ const searchData = async () => {
 
   try {
     //const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
       params: {
         workdata: workDate,
         tokuisakicd: selectedTokuisakiCd,

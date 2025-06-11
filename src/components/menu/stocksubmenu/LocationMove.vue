@@ -385,7 +385,6 @@ const searchData = async () => {
   console.log("検索条件:", workDate, selectedTokuisakiCd);
 
   try {
-    // const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
       params: {
         workdata: workDate,
@@ -425,85 +424,6 @@ const searchData = async () => {
   }
 };
 
-
-
-// const searchData = async () => {
-//   try {
-//     const apiUrl = "https://www.hokuohylogi.com/tLocationT/listAll";
-//     //const apiUrl = "http://192.168.10.127:8091/tLocationT/listAll";
-//     const response = await axios.get(apiUrl, {
-//       params: { centercd: authStore.centerId },
-//     });
-//     if (Array.isArray(response.data)) {
-//       tableData.value = response.data.map((item) => ({
-//         uuid: item.uuid,
-//         workdata:formatDate(item.workdata), //
-//         tokuisaki: item.tokuisakicd || "",
-//         syohincd: item.syohincd || "",
-//         syohinmei: item.syohinmei || "",
-//         suryo2: item.suryo2 || "",
-//         expirationdate: formatDate(item.roto1), // ← ここで変換
-//         locationdata: item.locationdata || "",
-//         kesu: item.kesu || 0,
-//         bara: item.bara || 0,
-//         irisu: item.irisu1 || 0,
-//         supplier: item.sapuraiyanm || "",
-//         ryukono: item.ryukono || "",
-//       }));
-//       rowCount.value = tableData.value.length;
-//     }
-//   } catch (error) {
-//     alert("データ取得に失敗しました。");
-//     tableData.value = [];
-//     rowCount.value = 0;
-//   }
-// };
-
-
-// const searchByWorkDate = async () => {
-//   if (!filters.value.workdata) {
-//     alert("作業日を入力してください。");
-//     return;
-//   }
-
-//   try {
-//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByWorkDate", {
-//       //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByWorkDate", {
-//       params: {
-//         workdata: filters.value.workdata,
-//         centercd: authStore.centerId,
-//       },
-//     });
-
-//     if (Array.isArray(response.data)) {
-//       tableData.value = response.data.map(item => ({
-//         workdata: formatDate(item.workdata),
-//         uuid: item.uuid,
-//         tokuisaki: item.tokuisakicd || "",
-//         syohincd: item.syohincd || "",
-//         syohinmei: item.syohinmei || "",
-//         suryo2: item.suryo2 || "",
-//         expirationdate: formatDate(item.roto1),
-//         locationdata: item.locationdata || "",
-//         kesu: item.kesu || 0,
-//         bara: item.bara || 0,
-//         irisu: item.irisu1 || 0,
-//         supplier: item.sapuraiyanm || "",
-//         ryukono: item.ryukono || "",
-//       }));
-
-//       rowCount.value = tableData.value.length;
-//     } else {
-//       alert("検索結果が見つかりません。");
-//       tableData.value = [];
-//       rowCount.value = 0;
-//     }
-//   } catch (error) {
-//     alert("作業日検索に失敗しました。");
-//   }
-// };
-
-
 const handleSave = async () => {
   try {
     const payload = {
@@ -520,90 +440,6 @@ const handleSave = async () => {
     alert("データ送信に失敗しました。");
   }
 };
-
-
-// const searchByProductName = async () => {
-//   if (!filters.value.syohinmei) {
-//     alert("商品名を入力してください。");
-//     return;
-//   }
-
-//   try {
-//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByProductName", {
-//       params: {
-//         syohinmei: filters.value.syohinmei,
-//         centercd: authStore.centerId,
-//       },
-//     });
-
-//     if (Array.isArray(response.data)) {
-//       tableData.value = response.data.map(item => ({
-//         workdata:formatDate(item.workdata), //
-//         uuid: item.uuid,
-//         tokuisaki: item.tokuisakicd || "",
-//         syohincd: item.syohincd || "",
-//         syohinmei: item.syohinmei || "",
-//         suryo2: item.suryo2 || "",
-//         expirationdate: formatDate(item.roto1),
-//         locationdata: item.locationdata || "",
-//         kesu: item.kesu || 0,
-//         bara: item.bara || 0,
-//         irisu: item.irisu1 || 0,
-//         supplier: item.sapuraiyanm || "",
-//         ryukono: item.ryukono || "",
-//       }));
-
-//       rowCount.value = tableData.value.length;
-//     } else {
-//       alert("検索結果が見つかりません。");
-//       tableData.value = [];
-//       rowCount.value = 0;
-//     }
-//   } catch (error) {
-//     console.error("検索エラー:", error);
-//     alert("検索中にエラーが発生しました。");
-//   }
-// };
-
-// const searchByLocation = async () => {
-//   if (!filters.value.locationdata) {
-//     alert("ロケーションを入力してください。");
-//     return;
-//   }
-
-//   try {
-//     const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByLocation", {
-//       params: {
-//         locationdata: filters.value.locationdata,
-//         centercd: authStore.centerId,
-//       },
-//     });
-
-//     if (Array.isArray(response.data)) {
-//       tableData.value = response.data.map((item) => ({
-//         workdata:formatDate(item.workdata), //
-//         uuid: item.uuid,
-//         tokuisaki: item.tokuisakicd || "",
-//         syohincd: item.syohincd || "",
-//         syohinmei: item.syohinmei || "",
-//         suryo2: item.suryo2 || "",
-//         expirationdate: formatDate(item.roto1),
-//         locationdata: item.locationdata || "",
-//         kesu: item.kesu || 0,
-//         bara: item.bara || 0,
-//         irisu: item.irisu1 || 0,
-//         supplier: item.sapuraiyanm || "",
-//         ryukono: item.ryukono || "",
-//       }));
-//       rowCount.value = tableData.value.length;
-//     } else {
-//       alert("該当データがありません。");
-//     }
-//   } catch (error) {
-//     alert("ロケーション検索に失敗しました。");
-//   }
-// };
-
 
 
 const editRow = (row) => {
@@ -627,7 +463,7 @@ const handleFileChange = async (event) => {
       formData.append("centercd", authStore.centerId);
 
       //const apiUrl = "https://www.hokuohylogi.com";
-      const apiUrl = "http://192.168.10.127:8091";
+      const apiUrl = "https://www.hokuohylogi.com";
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

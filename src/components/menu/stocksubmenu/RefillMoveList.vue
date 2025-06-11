@@ -200,7 +200,7 @@ const searchData = async () => {
   const centercd = authStore.centerId;
 
   try {
-    const response = await axios.get("http://192.168.10.127:8091/tRefillT/getByDateAndCustomer", {
+    const response = await axios.get("https://www.hokuohylogi.com/tRefillT/getByDateAndCustomer", {
       params: {
         date: formattedDate,
         tokuisakicd: selectedTokuisakiCd,

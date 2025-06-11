@@ -19,7 +19,7 @@ onMounted(async () => {
 
   try {
     const response = await axios.post(
-      "http://192.168.10.127:8091/tLocationT/printPdf",
+      "https://www.hokuohylogi.com/tLocationT/printPdf",
       uuids.split(","), // 複数UUID対応
       {
         params: { centercd: "TEST" }, // ← 必要に応じて変更
