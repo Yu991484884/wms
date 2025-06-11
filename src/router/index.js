@@ -186,6 +186,17 @@ const routes = [
     },
   },
       {
+    path: "/refilllist",
+    name: "RefillMoveList",
+    component: () => import("../components/menu/stocksubmenu/RefillMoveList.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "補充登録実績", path: "/refilllist" },
+      ],
+    },
+  },
+      {
     path: "/pdf-preview",
     name: "PdfPreview",
     component: () => import("../components/menu/stocksubmenu/PdfPreview.vue"),
@@ -204,6 +215,28 @@ const routes = [
       breadcrumb: [
         { label: "ホーム", path: "/" },
         { label: "在庫移動進捗", path: "/locationprogress" },
+      ],
+    },
+  },
+    {
+    path: "/moveconfirmed",
+    name: "MoveConfirmed",
+    component: () => import("../components/menu/stocksubmenu/MoveConfirmed.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "通常入庫作成", path: "/moveconfirmed" },
+      ],
+    },
+  },
+      {
+    path: "/adjustment",
+    name: "AdjustmentDataCreation",
+    component: () => import("../components/menu/stocksubmenu/AdjustmentDataCreation.vue"),
+    meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "調整データ作成", path: "/adjustment" },
       ],
     },
   },

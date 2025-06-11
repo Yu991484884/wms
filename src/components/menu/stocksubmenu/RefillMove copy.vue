@@ -243,19 +243,18 @@ const generatePdfLocally = async () => {
     const pageRows = selectedRows.value.slice(i, i + rowsPerPage);
     // const qrImages = await Promise.all(pageRows.map(row => generateQrBase64(row.syohincd)));
     const barcodeImages = pageRows.map(row => generateCode39Base64(row.syohincd));
-    const body = pageRows.map(() => ["", "", "", "", ""]);
+    const body = pageRows.map(() => ["", "", "", ""]);
 
     autoTable(doc, {
       startY: 30,
       margin: { left: marginLeft, right: marginRight },
-      head: [["商品CD", "商品名", "正規ロケ", "在庫総数", "商品JAN"]],
+      head: [["商品CD", "商品名", "正規ロケ", "商品JAN"]],
       body: body,
 columnStyles: {
   0: { cellWidth: 45, halign: 'left' },   // 商品CD
   1: { cellWidth: 120, halign: 'left' },  // 商品名
-  2: { cellWidth: 35, halign: 'left' },   // 正規ロケ
-  3: { cellWidth: 25, halign: 'right' },  // 在庫総数 ←追加
-  4: { cellWidth: 60 }                    // バーコード
+  2: { cellWidth: 35, halign: 'left' },   // 作業ロケ
+  3: { cellWidth: 60 }                    // バーコード
 },
 styles: {
   font: "ipag",
@@ -271,7 +270,7 @@ styles: {
       },
       theme: "grid",
 didDrawCell: (data) => {
-  if (data.section === 'body' && data.column.index === 4) {
+  if (data.section === 'body' && data.column.index === 3) {
     const imgData = barcodeImages[data.row.index];
     if (imgData) {
       const barcodeWidth = 20;
@@ -284,16 +283,16 @@ didDrawCell: (data) => {
     const realData = pageRows[data.row.index];
     if (!realData) return;  // ← ★ 安全チェックを追加
 
-let text = "";
-switch (data.column.index) {
-  case 0: text = realData.syohincd || ""; break;
-  case 1: text = realData.syohinmei || ""; break;
-  case 2: text = realData.regularlocation || ""; break;
-  case 3: text = realData.suryo2?.toString() || ""; break;
-}
+    let text = "";
+    switch (data.column.index) {
+      case 0: text = realData.syohincd || ""; break;
+      case 1: text = realData.syohinmei || ""; break;
+      case 2: text = realData.locationdata || ""; break;
+    }
 
-// ← すべての列で text を描画する（条件分岐なし）
-doc.text(text, data.cell.x + 2, data.cell.y + data.cell.height / 2 + 3);
+    if (data.column.index !== 3) {
+      doc.text(text, data.cell.x + 2, data.cell.y + data.cell.height / 2 + 3);
+    }
   }
 }
 
@@ -404,8 +403,8 @@ const searchData = async () => {
   }
 
   try {
-    //const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
+    //const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
       params: {
         workdata: workDate,
         tokuisakicd: selectedTokuisakiCd,
@@ -424,7 +423,6 @@ const searchData = async () => {
         suryo2: item.suryo2 || "",
         expirationdate: formatDate(item.roto1),
         locationdata: item.locationdata || "",
-        regularlocation: item.regularlocation || "",  
         kesu: item.kesu || 0,
         bara: item.bara || 0,
         irisu: item.irisu1 || 0,

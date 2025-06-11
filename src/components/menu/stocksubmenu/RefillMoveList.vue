@@ -32,22 +32,8 @@
 </select>
 </div>
 
-
-<div>
-  <div class="filter-item">
-    指定ロケ
-  </div>
-  <el-input
-    v-model="filters.locationdata"
-    clearable
-    placeholder="ロケーション"
-  />
-</div>
-
-
-
-<button class="search-button" @click="generatePdfLocally">
-  <Printer class="icon" /> リスト印刷
+<button class="search-button" @click="generateCsvLocally">
+  <Paperclip class="icon" /> 実績出力
 </button>
     </div>
 
@@ -74,19 +60,15 @@
 >
         <!-- チェックボックス列 -->
         <el-table-column type="selection" width="55" fixed="left" />
-
         <!-- データ列 -->
-        <el-table-column prop="tokuisaki" label="得意先" width="100" />
+        <el-table-column prop="tokuisakicd" label="得意先CD" width="150" />
+        <el-table-column prop="ryusyukosakinm" label="得意先名" width="300" />
         <el-table-column prop="syohincd" label="商品CD" width="120" />
-        <el-table-column prop="syohinmei" label="商品名" width="300" />
-        <el-table-column prop="suryo2" label="在庫総バラ" width="100" />
-        <el-table-column prop="expirationdate" label="賞味期限" width="120" />
-        <el-table-column prop="locationdata" label="ロケーション" width="120" />
-        <el-table-column prop="irisu" label="入数" width="60" />
-        <el-table-column prop="kesu" label="ケース" width="70" />
-        <el-table-column prop="bara" label="バラ" width="60" />
-        <el-table-column prop="supplier" label="サプライヤ様" width="auto" />
-
+        <el-table-column prop="syohinmei" label="商品名" width="500" />
+        <el-table-column prop="irisu1" label="入数" width="60" />
+        <el-table-column prop="suryo1" label="移動予定数" width="100" />
+        <el-table-column prop="locationdata" label="オーバーロケ" width="120" />
+        <el-table-column prop="updatedby" label="作業員CD" width="auto" />
       </el-table>
       <el-pagination
   v-model:current-page="currentPage"
@@ -114,38 +96,17 @@
   </div>
 </div>
 
-<!-- PDF プレビュー モーダル -->
-<div v-if="showPdfPreview" class="modal-overlay">
-  <div class="modal large-modal">
-    <div class="modal-header">
-      <h2>PDFプレビュー</h2>
-    </div>
-    <div class="modal-body" style="height: 600px;">
-      <iframe :src="pdfBlobUrl" width="100%" height="100%" />
-    </div>
-    <div class="modal-footer">
-      <button class="close-button" @click="showPdfPreview = false">閉じる</button>
-    </div>
-  </div>
-</div>
-
-
   </div>
 
 </template>
 
 <script setup>
-import { Printer } from '@element-plus/icons-vue' 
+import { Paperclip } from '@element-plus/icons-vue' 
 import axios from "axios";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { onMounted} from "vue";
 import { computed } from "vue";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; 
-import ipagFont from "@/assets/fonts/ipag-base64.js"; 
-// import QRCode from "qrcode";
-import JsBarcode from "jsbarcode";
 
 
 const currentPage = ref(1);
@@ -161,6 +122,13 @@ const handleSizeChange = (newSize) => {
   pageSize.value = newSize;
   currentPage.value = 1;
 };
+
+const formatDateToYMD = (str) => {
+  if (!str) return "";
+  const [y, m, d] = str.split("/");
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+};
+
 
 const handlePageChange = (newPage) => {
   currentPage.value = newPage;
@@ -179,136 +147,8 @@ const filters = ref({
 
 });
 
-const generateCode39Base64 = (text) => {
-  const canvas = document.createElement("canvas");
-  JsBarcode(canvas, text, {
-    format: "CODE39",
-    width: 1.0,// ← 幅
-    height: 20, // ← 高さ
-    displayValue: false,
-    margin: 0,
-  });
-  return canvas.toDataURL("image/png");
-};
-
-const generatePdfLocally = async () => {
-  const doc = new jsPDF({ orientation: "landscape" });
-
-  doc.addFileToVFS("ipag.ttf", ipagFont);
-  doc.addFont("ipag.ttf", "ipag", "normal");
-  doc.addFont("ipag.ttf", "ipag", "bold");
-
-  const marginLeft = 15;
-  const marginRight = 15;
-  const pageWidth = doc.internal.pageSize.getWidth();
-
-  const rowsPerPage = 10;
-  const totalRows = selectedRows.value.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
-  const now = new Date();
-  const formattedDateTime = now.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).replace(/\//g, "/");
-
-  // const generateQrBase64 = async (text) => {
-  //   try {
-  //     return await QRCode.toDataURL(text, { margin: 1, width: 50 });
-  //   } catch (err) {
-  //     console.error("QRコード生成失敗", err);
-  //     return null;
-  //   }
-  // };
-
-  for (let i = 0; i < totalRows; i += rowsPerPage) {
-    const currentPage = Math.floor(i / rowsPerPage) + 1;
-    if (i > 0) doc.addPage();
-
-    doc.setFont("ipag", "normal");
-    doc.setFontSize(10);
-    doc.text(formattedDateTime, marginLeft, 12);
-    doc.text(`${currentPage}/${totalPages}`, pageWidth - marginRight - 20, 12);
-
-    doc.setFont("ipag", "bold");
-    doc.setFontSize(18);
-    doc.text("補充商品リスト", pageWidth / 2, 22, { align: "center" });
-
-    doc.setFont("ipag", "normal");
-    doc.setFontSize(11);
-
-    const pageRows = selectedRows.value.slice(i, i + rowsPerPage);
-    // const qrImages = await Promise.all(pageRows.map(row => generateQrBase64(row.syohincd)));
-    const barcodeImages = pageRows.map(row => generateCode39Base64(row.syohincd));
-    const body = pageRows.map(() => ["", "", "", "", ""]);
-
-    autoTable(doc, {
-      startY: 30,
-      margin: { left: marginLeft, right: marginRight },
-      head: [["商品CD", "商品名", "正規ロケ", "在庫総数", "商品JAN"]],
-      body: body,
-columnStyles: {
-  0: { cellWidth: 45, halign: 'left' },   // 商品CD
-  1: { cellWidth: 120, halign: 'left' },  // 商品名
-  2: { cellWidth: 35, halign: 'left' },   // 正規ロケ
-  3: { cellWidth: 25, halign: 'right' },  // 在庫総数 ←追加
-  4: { cellWidth: 60 }                    // バーコード
-},
-styles: {
-  font: "ipag",
-  fontSize: 10,
-  cellPadding: 4,
-  minCellHeight: 15.0,  // ← 行高さを固定
-},
-      headStyles: {
-        fillColor: [200, 200, 200],
-        fontStyle: "bold",
-        fontSize: 12,
-        halign: 'left'
-      },
-      theme: "grid",
-didDrawCell: (data) => {
-  if (data.section === 'body' && data.column.index === 4) {
-    const imgData = barcodeImages[data.row.index];
-    if (imgData) {
-      const barcodeWidth = 20;
-      const barcodeHeight = 10;
-      const x = data.cell.x + (data.cell.width - barcodeWidth) / 2;
-      const y = data.cell.y + (data.cell.height - barcodeHeight) / 2;
-      doc.addImage(imgData, 'PNG', x, y, barcodeWidth, barcodeHeight);
-    }
-  } else if (data.section === 'body') {
-    const realData = pageRows[data.row.index];
-    if (!realData) return;  // ← ★ 安全チェックを追加
-
-let text = "";
-switch (data.column.index) {
-  case 0: text = realData.syohincd || ""; break;
-  case 1: text = realData.syohinmei || ""; break;
-  case 2: text = realData.regularlocation || ""; break;
-  case 3: text = realData.suryo2?.toString() || ""; break;
-}
-
-// ← すべての列で text を描画する（条件分岐なし）
-doc.text(text, data.cell.x + 2, data.cell.y + data.cell.height / 2 + 3);
-  }
-}
-
-    });
-  }
-
-  const pdfBlob = doc.output("blob");
-  pdfBlobUrl.value = URL.createObjectURL(pdfBlob);
-  showPdfPreview.value = true;
-};
-
 const tableData = ref([]);
 const selectedRows = ref([]);
-const showPdfPreview = ref(false);
-const pdfBlobUrl = ref("");
 
 const handleSelectionChange = (rows) => {
   selectedRows.value = rows
@@ -319,43 +159,6 @@ const centercd = authStore.centerId; // ログイン中のセンターコード
 // 得意先リストデータ
 const tokuisakiList = ref([]);
 
-
-
-// const printSelectedRows = async () => {
-//   const uuidList = selectedRows.value.map(row => row.uuid);
-//   if (uuidList.length === 0) {
-//     alert("印刷対象が選択されていません。");
-//     return;
-//   }
-
-//   try {
-//     const response = await axios.post(
-//       "http://192.168.10.127:8091/tLocationT/printPdf",
-//       uuidList,
-//       {
-//         params: { centercd: authStore.centerId },
-//         responseType: "blob",
-//       }
-//     );
-
-//     const blob = new Blob([response.data], { type: "application/pdf" });
-//     pdfBlobUrl.value = URL.createObjectURL(blob);
-//     showPdfPreview.value = true;
-//   } catch (error) {
-//     console.error("PDF取得失敗:", error);
-//     alert("PDFの取得に失敗しました。");
-//   }
-// };
-
-
-
-
-const formatDate = (str) => {
-  if (!str) return "";
-  const [y, m, d] = str.split("/");
-  if (!y || !m || !d) return "";
-  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-};
 
 // 得意先リストをバックエンドから取得する関数
 const fetchTokuisakiList = async () => {
@@ -387,63 +190,102 @@ const rowCount = ref(0);
 const searchData = async () => {
   const workDate = filters.value.workdata;
   const selectedTokuisakiCd = filters.value.tokuisaki;
-  const location = filters.value.locationdata; // ← 新規追加
 
   if (!workDate || !selectedTokuisakiCd) {
-    alert("作業日と得意先とロケーションを選択してください。");
+    alert("作業日と得意先を選択してください。");
     return;
   }
 
-  const selectedTokuisaki = tokuisakiList.value.find(
-    (item) => item.tokuisakicd === selectedTokuisakiCd
-  );
-
-  if (!selectedTokuisaki) {
-    alert("得意先情報が不正です。");
-    return;
-  }
+  const formattedDate = formatDateToYMD(workDate);
+  const centercd = authStore.centerId;
 
   try {
-    //const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
-    const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByConditions", {
+    const response = await axios.get("http://192.168.10.127:8091/tRefillT/getByDateAndCustomer", {
       params: {
-        workdata: workDate,
+        date: formattedDate,
         tokuisakicd: selectedTokuisakiCd,
-        locationdata: location, // ← APIへ送信する新パラメータ
-        centercd: authStore.centerId,
+        centercd: centercd  // ✅ 必須：DB自動切り替えのため
       },
     });
+    const selectedTokuisaki = tokuisakiList.value.find(
+  (item) => item.tokuisakicd === selectedTokuisakiCd
+);
 
     if (Array.isArray(response.data)) {
       tableData.value = response.data.map((item) => ({
         uuid: item.uuid,
-        workdata: formatDate(item.workdata),
-        tokuisaki: item.tokuisakicd || "",
+        tokuisakicd: item.tokuisakicd || "",
+        ryusyukosakinm: selectedTokuisaki.tokuisakinm || "",
         syohincd: item.syohincd || "",
         syohinmei: item.syohinmei || "",
-        suryo2: item.suryo2 || "",
-        expirationdate: formatDate(item.roto1),
+        irisu1: item.irisu1 || 0,
+        suryo1: item.suryo1 || 0,
         locationdata: item.locationdata || "",
-        regularlocation: item.regularlocation || "",  
-        kesu: item.kesu || 0,
-        bara: item.bara || 0,
-        irisu: item.irisu1 || 0,
-        supplier: item.sapuraiyanm || "",
-        ryukono: item.ryukono || "",
+        updatedby: item.updatedBy || "",
       }));
       rowCount.value = tableData.value.length;
       if (rowCount.value === 0) noDataModalVisible.value = true;
     } else {
-      alert("該当データがありません。");
       tableData.value = [];
       rowCount.value = 0;
+      alert("該当データがありません。");
     }
   } catch (error) {
-    console.error("検索エラー:", error);
-    alert("検索に失敗しました。");
+    console.error("補充データ取得エラー:", error);
+    alert("データ取得に失敗しました。");
   }
 };
 
+const generateCsvLocally = () => {
+  if (selectedRows.value.length === 0) {
+    alert("出力対象が選択されていません。");
+    return;
+  }
+
+  const selectedTokuisaki = tokuisakiList.value.find(
+    (item) => item.tokuisakicd === filters.value.tokuisaki
+  );
+
+  const formattedDate = filters.value.workdata?.replaceAll("/", "") || "未選択日";
+  const tokuisakiName = selectedTokuisaki?.tokuisakinm?.replace(/[\\/:*?"<>|]/g, "") || "未選択得意先";
+  const filename = `${formattedDate}_${tokuisakiName}_補充予定実績.csv`;
+
+  const header = [
+    "得意先CD",
+    "得意先名",
+    "商品CD",
+    "商品名",
+    "入数",
+    "移動予定数",
+    "オーバーロケ"
+  ];
+
+  const csvRows = [header.join(",")];
+
+  selectedRows.value.forEach(row => {
+    const line = [
+      `"${row.tokuisakicd || ""}"`,
+      `"${row.ryusyukosakinm || ""}"`,
+      `"${row.syohincd || ""}"`,
+      `"${row.syohinmei || ""}"`,
+      `${row.irisu1 ?? ""}`,
+      `${row.suryo1 ?? ""}`,
+      `"${row.locationdata || ""}"`
+    ].join(",");
+    csvRows.push(line);
+  });
+
+  const csvContent = "\uFEFF" + csvRows.join("\n"); // UTF-8 BOM付き
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 
 

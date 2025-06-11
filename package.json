@@ -14,6 +14,7 @@
     "dotenv": "^16.4.7",
     "element-plus": "^2.7.0",
     "encoding-japanese": "^2.2.0",
+    "jsbarcode": "^3.11.6",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "pinia": "^2.3.0",
