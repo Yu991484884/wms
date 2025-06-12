@@ -330,26 +330,60 @@ const deleteAllRows = () => {
   confirmDeleteModalVisible.value = true;
 };
 
+// const executeDelete = async () => {
+//   try {
+//     const centercd = authStore.centerId;
+//     const deleteConditions = selectedRows.value.map(row => ({
+//       uuid: row.uuid,
+//     }));
+
+//     const response = await axios.post(
+//       "https://www.hokuohylogi.com/tLocationT/deleteByConditions",
+//       deleteConditions,
+//       {
+//         params: { centercd },
+//         headers: { "Content-Type": "application/json" },
+//       }
+//     );
+
+//     if (response.status === 200) {
+//       deleteModalMessage.value = response.data || "削除が完了しました。";
+//       deleteModalVisible.value = true;
+//       await searchData();
+//     }
+//   } catch (error) {
+//     alert("一括削除に失敗しました。");
+//     console.error(error);
+//   } finally {
+//     confirmDeleteModalVisible.value = false;
+//   }
+// };
+
 const executeDelete = async () => {
   try {
     const centercd = authStore.centerId;
-    const deleteConditions = selectedRows.value.map(row => ({
-      uuid: row.uuid,
-    }));
+    const workdata = filters.value.workdata;
+    const tokuisakicd = filters.value.tokuisaki;
 
     const response = await axios.post(
-      "https://www.hokuohylogi.com/tLocationT/deleteByConditions",
-      deleteConditions,
+      "https://www.hokuohylogi.com/tLocationT/deleteBatch", // APIエンドポイント
+      null, // ボディは不要（クエリパラメータのみ使用）
       {
-        params: { centercd },
-        headers: { "Content-Type": "application/json" },
+        params: {
+          centercd,
+          workdata,
+          tokuisakicd,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
 
     if (response.status === 200) {
       deleteModalMessage.value = response.data || "削除が完了しました。";
       deleteModalVisible.value = true;
-      await searchData();
+      await searchData(); // 再検索して更新
     }
   } catch (error) {
     alert("一括削除に失敗しました。");
