@@ -242,8 +242,8 @@ const getTodayFormatted = () => {
       // 0,                        // 数量１
       // row.kesu * row.irisu + row.bara, // 数量２: kesu * irisu + bara
       "",                       // 数量３
-      row.location,             // 備考
-      "", "", "", "", "", "", "", "", "", "", // 空白列
+      row.location ? row.location.replace(/\r?\n|\r/g, " ") : "",// 備考
+      "", "", "", "", "", "", "", "", "", "", "", // 空白列
     ].join(","))
   ].join("\n");
   // 選択された得意先コードから得意先名を取得
