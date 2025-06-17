@@ -67,12 +67,12 @@
         </i>
       </div>
       <div v-if="activeMenu === 'stock'" class="sub-menu">
-        <router-link to="/location" class="sub-item">在庫取込処理</router-link>
+        <router-link to="/location" class="sub-item">ロケ移動取込</router-link>
         <router-link to="/refill" class="sub-item">補充帳票印刷</router-link>
         <router-link to="/refilllist" class="sub-item">補充登録実績</router-link>
-        <router-link to="/locationprogress" class="sub-item">在庫移動進捗</router-link>
-        <router-link to="/moveconfirmed" class="sub-item">通常入庫作成</router-link>
-        <router-link to="/adjustment" class="sub-item">調整データ作成</router-link>
+        <router-link to="/locationprogress" class="sub-item">ロケ移動進捗</router-link>
+        <router-link to="/moveconfirmed" class="sub-item">ロケ移動通常入庫作成</router-link>
+        <router-link to="/adjustment" class="sub-item">ロケ移動調整作成</router-link>
         <router-link to="/inventory" class="sub-item">棚卸メンテ</router-link>
       </div>
 

@@ -419,7 +419,8 @@ const searchData = async () => {
   console.log("検索条件:", workDate, selectedTokuisakiCd);
 
   try {
-    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
+    const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByAllList", {
+    // const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByAllList", {
       params: {
         workdata: workDate,
         tokuisakicd: selectedTokuisakiCd,
@@ -498,6 +499,7 @@ const handleFileChange = async (event) => {
 
       //const apiUrl = "https://www.hokuohylogi.com";
       const apiUrl = "https://www.hokuohylogi.com";
+    
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });

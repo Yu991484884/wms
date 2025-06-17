@@ -244,6 +244,12 @@ const routes = [
     path: "/inventory",
     name: "InventoryMainten",
     component: () => import("../components/menu/stocksubmenu/InventoryMainten.vue"),
+        meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "棚卸", path: "/inventory" },
+      ],
+    },
   },
 ];
 
