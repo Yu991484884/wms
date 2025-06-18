@@ -321,7 +321,8 @@ const tokuisakinm = selectedTokuisaki ? selectedTokuisaki.tokuisakinm : "得意�
  // ✅ ステータス更新処理を追加
   try {
     const uuidList = selectedRows.value.map(row => row.uuid);
-    await axios.post("https://www.hokuohylogi.com//tLocationTFinish/updateStatus", {
+    await axios.post("https://www.hokuohylogi.com/tLocationTFinish/updateStatus", {
+        // await axios.post("http://192.168.10.127:8091/tLocationTFinish/updateStatus", {
       centercd: authStore.centerId,
       uuidList: uuidList,
       createstatus: "作成済"
