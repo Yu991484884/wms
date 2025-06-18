@@ -43,14 +43,14 @@
         <el-table-column type="selection" width="55" fixed="left" />
         <!-- データ列 -->
         <el-table-column prop="syohincd" label="商品CD" width="120" />
-        <el-table-column prop="syohinmei" label="商品名" width="500" />
+        <el-table-column prop="syohinmei" label="商品名" width="350" />
         <el-table-column prop="irisu" label="入数" width="60" />
         <el-table-column prop="roto1" label="賞味期限" width="120" />
         <el-table-column prop="kesu" label="ケース" width="70" />
         <el-table-column prop="bara" label="バラ" width="60" />
         <el-table-column prop="location" label="ロケーション" width="120" />
         <el-table-column prop="supplier" label="サプライヤ様" width="200" />
-        <el-table-column prop="source" label="データ源" width:auto />
+        <el-table-column prop="status" label="ステータス" width:auto />
 
       </el-table>
     </div>
@@ -179,7 +179,7 @@ const formattedDate = (() => {
           uuid: item.uuid,
           kisandata: item.kisandata,
           denbyodata: item.denbyodata,
-          source: item.source || "",
+          status: item.createstatus || "",
         }))
       : [];
   } catch (error) {
@@ -189,18 +189,29 @@ const formattedDate = (() => {
 };
 
 
-const achievements = () => {
+const achievements = async () => {
   if (!selectedRows.value || selectedRows.value.length === 0) {
     alert("データがありません。");
     return;
   }
-  // 今日の日付を YYYY/MM/DD 形式で返す関数
+
+// 調整出庫使う日付、当日
 const getTodayFormatted = () => {
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
   return `${year}/${month}/${day}`;
+};
+
+// 調整入庫使う日付、前日
+const getYesterdayDashed = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const year = yesterday.getFullYear();
+  const month = String(yesterday.getMonth() + 1).padStart(2, "0");
+  const day = String(yesterday.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`; // 例：2025-06-16（必要なら）
 };
 
 
@@ -228,8 +239,8 @@ const getTodayFormatted = () => {
       "P_NYUKO",                // 取込データ区分（固定値）
       filters.value.tokuisaki,  // 得意先コード
       row.kyadenno,                       // 客先伝票番号
-      getTodayFormatted(),            // 伝票日付
-      getTodayFormatted(),            // 起算日
+      getYesterdayDashed(),            // 伝票日付
+      getYesterdayDashed(),            // 起算日
       15, "", "", "", "", "", "", // 空白列
       "", "", "", "", "", "", "", // 空白列
       "", "", "", "", "","",          // 客先伝票行番号
@@ -243,7 +254,8 @@ const getTodayFormatted = () => {
       // row.kesu * row.irisu + row.bara, // 数量２: kesu * irisu + bara
       "",                       // 数量３
       row.location ? row.location.replace(/\r?\n|\r/g, " ") : "",// 備考
-      "", "", "", "", "", "", "", "", "", "", "", // 空白列
+      "","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""
+      // 空白列
     ].join(","))
   ].join("\n");
   // 選択された得意先コードから得意先名を取得
@@ -306,7 +318,23 @@ const tokuisakinm = selectedTokuisaki ? selectedTokuisaki.tokuisakinm : "得意�
   document.body.removeChild(skLink);
 
   alert("CSVダウンロードが完了しました。");
+ // ✅ ステータス更新処理を追加
+  try {
+    const uuidList = selectedRows.value.map(row => row.uuid);
+    await axios.post("https://www.hokuohylogi.com//tLocationTFinish/updateStatus", {
+      centercd: authStore.centerId,
+      uuidList: uuidList,
+      createstatus: "作成済"
+    });
+    console.log("ステータス更新完了");
+  } catch (error) {
+    console.error("ステータス更新失敗:", error);
+    alert("ステータス更新に失敗しました。");
+  }
+
 };
+
+
 
 </script>
 
