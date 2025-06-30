@@ -374,6 +374,7 @@ const fetchProgressSummary = async (filters) => {
     // リクエスト送信
     // const response = await axios.get("https://www.hokuohylogi.com/progress/summary", {
       const response = await axios.get("https://www.hokuohylogi.com/progress/summary", {
+      // const response = await axios.get("http://192.168.10.127:8091/progress/summary", {
       params: updatedFilters,
     });
 

@@ -225,6 +225,21 @@
   </div>
 </div>
 
+<div v-if="errorModalVisible" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>{{ errorModalTitle }}</h2>
+    </div>
+    <div class="modal-body">
+      <p>{{ errorModalMessage }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="close-button" @click="closeErrorModal">OK</button>
+    </div>
+  </div>
+</div>
+
+
   </div>
 
 </template>
@@ -329,35 +344,6 @@ const deleteAllRows = () => {
   }
   confirmDeleteModalVisible.value = true;
 };
-
-// const executeDelete = async () => {
-//   try {
-//     const centercd = authStore.centerId;
-//     const deleteConditions = selectedRows.value.map(row => ({
-//       uuid: row.uuid,
-//     }));
-
-//     const response = await axios.post(
-//       "https://www.hokuohylogi.com/tLocationT/deleteByConditions",
-//       deleteConditions,
-//       {
-//         params: { centercd },
-//         headers: { "Content-Type": "application/json" },
-//       }
-//     );
-
-//     if (response.status === 200) {
-//       deleteModalMessage.value = response.data || "削除が完了しました。";
-//       deleteModalVisible.value = true;
-//       await searchData();
-//     }
-//   } catch (error) {
-//     alert("一括削除に失敗しました。");
-//     console.error(error);
-//   } finally {
-//     confirmDeleteModalVisible.value = false;
-//   }
-// };
 
 const executeDelete = async () => {
   try {
@@ -476,6 +462,16 @@ const handleSave = async () => {
   }
 };
 
+const errorModalVisible = ref(false);
+const errorModalTitle = ref("");
+const errorModalMessage = ref("");
+
+const showErrorModal = (title, message) => {
+  errorModalTitle.value = title;
+  errorModalMessage.value = message;
+  errorModalVisible.value = true;
+};
+const closeErrorModal = () => (errorModalVisible.value = false);
 
 const editRow = (row) => {
   selectedRowData.value = { ...row };
@@ -486,9 +482,10 @@ const handleFileChange = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  try {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    try {
       const csvText = e.target.result;
       const utf8Blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
       const utf8File = new File([utf8Blob], "modified.csv");
@@ -497,22 +494,36 @@ const handleFileChange = async (event) => {
       formData.append("file", utf8File);
       formData.append("centercd", authStore.centerId);
 
-      //const apiUrl = "https://www.hokuohylogi.com";
       const apiUrl = "https://www.hokuohylogi.com";
-    
+
       await axios.post(`${apiUrl}/tLocationT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       successModalVisible.value = true;
-    };
-    reader.readAsText(file, "UTF-8");
-  } catch (error) {
-    alert("CSVアップロードに失敗しました。");
-  } finally {
+    } catch (error) {
+      let title = "エラー";
+      let message = "CSVアップロードに失敗しました。";
+
+      if (axios.isAxiosError(error) && error.response?.status === 500) {
+        title = "取込エラー";
+        message = "同じ受注番号が存在しています。削除してから再度取込よろしくお願いいたします。";
+      }
+
+      showErrorModal(title, message);
+    } finally {
+      event.target.value = null;
+    }
+  };
+
+  reader.onerror = () => {
+    showErrorModal("ファイル読込エラー", "CSVファイルの読込中にエラーが発生しました。");
     event.target.value = null;
-  }
+  };
+
+  reader.readAsText(file, "UTF-8");
 };
+
 
 const closeModal = () => (successModalVisible.value = false);
 </script>

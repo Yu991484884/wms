@@ -73,7 +73,9 @@
         <router-link to="/locationprogress" class="sub-item">ロケ移動進捗</router-link>
         <router-link to="/moveconfirmed" class="sub-item">ロケ移動通常入庫作成</router-link>
         <router-link to="/adjustment" class="sub-item">ロケ移動調整作成</router-link>
-        <router-link to="/inventory" class="sub-item">棚卸メンテ</router-link>
+        <router-link to="/inventory" class="sub-item">棚卸取込</router-link>
+        <router-link to="/inventorystatus" class="sub-item">棚卸進捗</router-link>
+        <router-link to="/inventorydata" class="sub-item">棚卸実績作成</router-link>
       </div>
 
     </nav>

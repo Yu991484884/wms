@@ -251,6 +251,28 @@ const routes = [
       ],
     },
   },
+    {
+    path: "/inventorystatus",
+    name: "InventoryMaintenStatus",
+    component: () => import("../components/menu/stocksubmenu/InventoryMaintenStatus.vue"),
+        meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "棚卸進捗", path: "/inventorystatus" },
+      ],
+    },
+  },
+      {
+    path: "/inventorydata",
+    name: "InventoryMaintenData",
+    component: () => import("../components/menu/stocksubmenu/InventoryMaintenData.vue"),
+        meta: {
+      breadcrumb: [
+        { label: "ホーム", path: "/" },
+        { label: "棚卸実績作成", path: "/inventorydata" },
+      ],
+    },
+  },
 ];
 
 const router = createRouter({
