@@ -441,6 +441,8 @@ const handleFileChange = async (event) => {
       //const apiUrl = "https://www.hokuohylogi.com";
       const apiUrl = "https://www.hokuohylogi.com";
 
+      // const apiUrl = "http://192.168.10.127:8091"; // ローカル開発用のAPI URL
+
       await axios.post(`${apiUrl}/receiving/uploadCsv`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
