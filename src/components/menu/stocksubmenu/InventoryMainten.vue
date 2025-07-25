@@ -86,9 +86,9 @@
 
         <!-- ボタン列 -->
         <el-table-column label="操作区分" fixed="right" width="150">
-          <template #default="scope">
+          <!-- <template #default="scope">
             <button class="action-button edit-button" @click="editRow(scope.row)">編集</button>
-          </template>
+          </template> -->
         </el-table-column>
       </el-table>
       <el-pagination
@@ -339,7 +339,7 @@ const executeDelete = async () => {
     const tokuisakicd = filters.value.tokuisaki;
 
     const response = await axios.post(
-       "https://www.hokuohylogi.com/tLocationT/deleteBatch", // APIエンドポイント
+       "https://www.hokuohylogi.com/tTanaoroshiT/deleteBatch", // APIエンドポイント
       // "http://192.168.10.127:8091/tTanaoroshiT/deleteBatch", // APIエンドポイント
       null, // ボディは不要（クエリパラメータのみ使用）
       {
@@ -440,7 +440,7 @@ const handleSave = async () => {
       irisu: selectedRowData.value.irisu,
       centercd: authStore.centerId,
     };
-    const response = await axios.put("https://www.hokuohylogi.com/receiving/update", payload);
+    const response = await axios.put("https://www.hokuohylogi.com/tTanaoroshiT/update", payload);
     alert(response.data);
     await searchData();
     closeChildView();
