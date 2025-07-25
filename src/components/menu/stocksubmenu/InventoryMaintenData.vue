@@ -196,6 +196,7 @@ const formattedDate = (() => {
   }
 };
 
+const seenCombinations = new Set(); // 商品コード + ロットの組み合わせを記録
 
 const achievements = async () => {
   if (!selectedRows.value || selectedRows.value.length === 0) {
@@ -294,25 +295,37 @@ const tokuisakinm = selectedTokuisaki ? selectedTokuisaki.tokuisakinm : "得意�
     "数量３", "備考"
   ];
 
-  const skCsvContent = [
-    "\uFEFF" + skHeaders.join(","), // BOM付きヘッダー
-    ...selectedRows.value.map((row) => [
+const skCsvContent = [
+  "\uFEFF" + skHeaders.join(","), // BOM付きヘッダー
+  ...selectedRows.value
+    // まず重複を除外
+    .filter(row => {
+      const lot = row.roto1 ? formatDateToSlash(row.roto2) : "";
+      const key = `${row.syohincd}-${lot}`; // 一意キーを作成
+      if (seenCombinations.has(key)) {
+        return false; // 既に登録済みならスキップ
+      }
+      seenCombinations.add(key);
+      return true;
+    })
+    // CSV行に変換
+    .map(row => [
       "P_SHUKO",                      // 取込データ区分（固定値）
       filters.value.tokuisaki,        // 得意先コード
-      "",                          // 客先伝票番号、伝票日付
-      getTodayFormatted(),   
-      getTodayFormatted(),            // 納入日
-      11, "", "", "", "", "", "",     // ～ 入出庫先情報空欄
-      "", "", "", "", "", "", "",     // ～ フリー項目まで空欄
-      "",    "",  "",  "",  "",  "",                           // 客先伝票行番号
-      row.syohincd,                   // 商品コード
-      row.roto1 ? formatDateToSlash(row.roto2) : "", // ロット１
-      "", "", "", "", "", "", "", "", "",           // ロット２～１０
-      row.syohinmei,                  // 品名
-      row.kesu,                       // 数量１
-      row.bara,                       // 数量２
-      "",                             // 数量３
-      ""                              // 備考
+      "",                              // 客先伝票番号
+      getTodayFormatted(),             // 伝票日付
+      getTodayFormatted(),             // 納入日
+      11, "", "", "", "", "", "",      // 入出庫先情報空欄
+      "", "", "", "", "", "", "",      // フリー項目まで空欄
+      "", "", "", "", "", "",          // 客先伝票行番号
+      row.syohincd,                    // 商品コード
+      row.roto1 ? formatDateToSlash(row.roto2) : "", // ロット1
+      "", "", "", "", "", "", "", "", "",            // ロット2〜10
+      row.syohinmei,                   // 品名
+      row.kesu,                        // 数量1
+      row.bara,                        // 数量2
+      "",                              // 数量3
+      ""                               // 備考
     ].join(","))
   ].join("\n");
 
