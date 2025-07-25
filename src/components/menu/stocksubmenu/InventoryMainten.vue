@@ -339,8 +339,8 @@ const executeDelete = async () => {
     const tokuisakicd = filters.value.tokuisaki;
 
     const response = await axios.post(
-      // "https://www.hokuohylogi.com/tLocationT/deleteBatch", // APIエンドポイント
-      "http://192.168.10.127:8091/tTanaoroshiT/deleteBatch", // APIエンドポイント
+       "https://www.hokuohylogi.com/tLocationT/deleteBatch", // APIエンドポイント
+      // "http://192.168.10.127:8091/tTanaoroshiT/deleteBatch", // APIエンドポイント
       null, // ボディは不要（クエリパラメータのみ使用）
       {
         params: {
@@ -477,8 +477,8 @@ const handleFileChange = async (event) => {
       formData.append("file", utf8File);
       formData.append("centercd", authStore.centerId);
 
-      // const apiUrl = "https://www.hokuohylogi.com";
-      const apiUrl = "http://192.168.10.127:8091";
+       const apiUrl = "https://www.hokuohylogi.com";
+      //const apiUrl = "http://192.168.10.127:8091";
 
       await axios.post(`${apiUrl}/tTanaoroshiT/import`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
