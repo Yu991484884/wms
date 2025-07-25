@@ -50,8 +50,8 @@
         <el-table-column prop="syohinmei" label="商品名" width="350" />
         <el-table-column prop="roto1" label="棚卸賞味" width="150" />
         <el-table-column prop="irisu" label="入数" width="60" />
-        <el-table-column prop="kesu" label="棚卸ケース" width="100" />
-        <el-table-column prop="bara" label="棚卸バラ" width="100" />
+        <el-table-column prop="checkkesu" label="棚卸ケース" width="100" />
+        <el-table-column prop="checkbara" label="棚卸バラ" width="100" />
         <el-table-column prop="location" label="ロケーション" width="120" />
         <el-table-column prop="supplier" label="サプライヤ様" width="200" />
         <el-table-column prop="status" label="ステータス" width:auto />
@@ -178,8 +178,10 @@ const formattedDate = (() => {
           irisu: item.irisu1,
           roto1: item.checktaste,
           roto2: item.roto1,
-          kesu: item.checkkesu,
-          bara: item.checkbara,
+          kesu: item.kesu,
+          bara: item.bara,
+          checkkesu: item.checkkesu,
+          checkbara: item.checkbara,
           location: item.locationdata,
           supplier: item.sapuraiyanm,
           uuid: item.uuid,
@@ -254,8 +256,8 @@ const getYesterdayDashed = () => {
       row.roto1 ? formatDateToSlash(row.roto1) : "",       // ロット１
       "", "", "", "", "", "", "", "", "",  // ロット２～ロット１０
       row.syohinmei,            // 品名
-      row.kesu,   // 数量１
-      row.bara,   // 数量１
+      row.checkkesu,   // 数量１
+      row.checkbara,   // 数量１
       // 0,                        // 数量１
       // row.kesu * row.irisu + row.bara, // 数量２: kesu * irisu + bara
       "",                       // 数量３
