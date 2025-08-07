@@ -81,6 +81,22 @@
   <el-table-column prop="bara" label="棚卸バラ" width="100" />
   <el-table-column prop="locationdata" label="ロケーション" width="200" />
   <el-table-column prop="sapuraiyanm" label="サプライヤ様" width="auto" />
+
+          <!-- ボタン列 -->
+<el-table-column label="操作区分" fixed="right" width="auto">
+  <template #default="scope">
+    <!-- プルダウンを変えても何も起きず、handleProgressCheck 後だけ表示が切り替わる -->
+    <button
+      v-show="isEditButtonVisible"
+      class="action-button edit-button"
+      @click="editRow(scope.row)"
+    >
+      編集
+    </button>
+  </template>
+</el-table-column>
+
+
 </el-table>
 
 <el-pagination
@@ -108,20 +124,76 @@
             </div>
       </div>
 
+          <div v-if="isChildViewVisible" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>棚卸済商品</h2>
+    </div>
+    <div class="modal-body">
+      <!-- 編集フィールド -->
+      <div class="field">
+        <label for="syohincd">商品CD:</label>
+        <input id="syohincd" v-model="selectedRowData.syohincd" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="syohinmei">商品名:</label>
+        <input id="syohinmei" v-model="selectedRowData.syohinmei" class="modal-input" disabled/>
+      </div>
+
+      <div class="field">
+        <label for="irisu">入数:</label>
+        <input id="irisu" type="number" v-model="selectedRowData.irisu1" class="modal-input" disabled/>
+      </div>
+
+      <div class="field">
+        <label for="roto1">棚卸賞味:</label>
+        <input id="roto1" type="date" v-model="selectedRowData.roto1" class="modal-input" />
+      </div>
+      <div class="field">
+        <label for="kesu">ケース:</label>
+        <input id="kesu" type="number" v-model="selectedRowData.kesu" class="modal-input" />
+      </div>
+      <div class="field">
+        <label for="bara">バラ:</label>
+        <input id="bara" type="number" v-model="selectedRowData.bara" class="modal-input" />
+      </div>
+      <div class="field">
+        <label for="locationdata">ロケーション:</label>
+        <input id="locationdata" type="text" v-model="selectedRowData.locationdata" class="modal-input" disabled/>
+      </div>
+      <div class="field">
+        <label for="supplier">サプライヤ様:</label>
+        <input id="supplier" v-model="selectedRowData.sapuraiyanm" class="modal-input" disabled/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-button confirm-button" @click="handleSave">確定</button>
+      <button class="action-button cancel-button" @click="closeChildView">キャンセル</button>
+    </div>
+  </div>
+    </div>
+
 </div>
 
 </template>
 
 <script setup>
 import { Search } from "@element-plus/icons-vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted,computed  } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/stores/auth";
-import { computed } from "vue";
+
 
 // ページネーション状態
 const currentPage = ref(1);
 const pageSize = ref(100);
+const isChildViewVisible = ref(false);
+const appliedDenpyokubun = ref('')
+
+const editRow = (row) => {
+  selectedRowData.value = { ...row };
+  isChildViewVisible.value = true;
+};
 
 // 表示するページのデータ（computedでフィルタ）
 const paginatedProgressData = computed(() => {
@@ -129,6 +201,42 @@ const paginatedProgressData = computed(() => {
   const end = start + pageSize.value;
   return progressTableData.value.slice(start, end);
 });
+
+const selectedRowData = ref({});
+const closeChildView = () => (isChildViewVisible.value = false);
+
+const formatDate = (str) => {
+  if (!str) return "";
+  const [y, m, d] = str.split("/");
+  if (!y || !m || !d) return "";
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+};
+
+const handleSave = async () => {
+  try {
+    // ペイロードに centercd を追加
+    const payload = {
+      uuid:       selectedRowData.value.uuid,
+      checktaste: selectedRowData.value.roto1,     // 棚卸賞味
+      checkkesu:  selectedRowData.value.kesu,      // 棚卸ケース
+      checkbara:  selectedRowData.value.bara,      // 棚卸バラ
+      centercd:   authStore.centerId               // センターCD
+    };
+
+    // PUT リクエスト
+    const url = 'https://www.hokuohylogi.com/tTanaoroshiCheckT/mobile/updateCheck';
+    const response = await axios.put(url, payload);
+
+    alert(response.data);
+    closeChildView();
+    handleProgressCheck();
+  } catch (error) {
+    console.error(error);
+    alert('更新に失敗しました。');
+  }
+};
+
+
 
 const handleSizeChange = (val) => {
   pageSize.value = val;
@@ -147,6 +255,8 @@ const centercd = authStore.centerId;
 // ▼ フィルター・データ管理
 const filters = ref({ arrivalDate: "", tokuisaki: "" });
 const progressFilters = ref({ arrivalDate: "", tokuisaki: "", denpyokubun: "" });
+
+
 const tokuisakiList = ref([]);
 const summaryTableData = ref([{ uninspected: "", inspected: "" }]);
 const progressTableData = ref([]);
@@ -155,7 +265,7 @@ const selectedRows = ref([]);
 // ▼ UI状態管理
 const successModalVisible = ref(false);
 const modalMessage = ref("");
-const isEditButtonVisible = ref(false);
+const isEditButtonVisible = ref(false)
 
 // ▼ 得意先リスト取得
 const fetchTokuisakiList = async () => {
@@ -225,7 +335,7 @@ const handleProgressCheck = async () => {
 
   // フィルター統合更新
   progressFilters.value.arrivalDate = formattedDate;
-  progressFilters.value.tokuisaki = tokuisaki;
+  progressFilters.value.tokuisaki   = tokuisaki;
 
   // サマリー取得
   const summaryData = await fetchProgressSummary({
@@ -241,14 +351,15 @@ const handleProgressCheck = async () => {
     },
   ];
 
-  // 詳細取得
   const detailsData = await fetchProgressDetails({
     arrivalDate: formattedDate,
     tokuisaki,
     denpyokubun,
   });
 
-  isEditButtonVisible.value = denpyokubun === "53" && detailsData.length > 0;
+appliedDenpyokubun.value = progressFilters.value.denpyokubun
+isEditButtonVisible.value =
+    appliedDenpyokubun.value === '52' && detailsData.length > 0
 
   progressTableData.value = detailsData.length
     ? detailsData.map((item) => {
@@ -265,9 +376,10 @@ const handleProgressCheck = async () => {
           };
         } else if (denpyokubun === "52") {
           return {
+            uuid:item.uuid,
             syohincd: item.syohincd,
             syohinmei: item.syohinmei,
-            roto1:item.checktaste,
+            roto1:formatDate(item.checktaste),
             roto2:item.roto1,
             irisu1: item.irisu1,
             kesu1: item.kesu,
@@ -714,6 +826,7 @@ html, body {
 .confirm-button:hover {
   background-color: #b3b3b3;
 }
+
 
 .cancel-button {
   background-color: #ccc;
