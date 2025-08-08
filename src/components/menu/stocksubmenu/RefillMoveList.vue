@@ -116,9 +116,9 @@
     currentPage.value = 1;
   };
 
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const formatDateToYMD = (str) => {
     if (!str) return '';
@@ -156,7 +156,7 @@
   // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd }, // センターコードを送信
       });
 
@@ -191,13 +191,16 @@
     const centercd = authStore.centerId;
 
     try {
-      const response = await api.get('/tRefillT/getByDateAndCustomer', {
-        params: {
-          date: formattedDate,
-          tokuisakicd: selectedTokuisakiCd,
-          centercd: centercd, // ✅ 必須：DB自動切り替えのため
-        },
-      });
+      const response = await axios.get(
+        'https://www.hokuohylogi.com/tRefillT/getByDateAndCustomer',
+        {
+          params: {
+            date: formattedDate,
+            tokuisakicd: selectedTokuisakiCd,
+            centercd: centercd, // ✅ 必須：DB自動切り替えのため
+          },
+        }
+      );
       const selectedTokuisaki = tokuisakiList.value.find(
         (item) => item.tokuisakicd === selectedTokuisakiCd
       );

@@ -96,9 +96,9 @@
     arrivalDate: '',
     tokuisaki: '',
   });
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const formatDateToSlash = (date) => {
     return date.replace(/-/g, '/');
@@ -136,9 +136,10 @@
   };
 
   // 得意先リストをバックエンドから取得する関数
+
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd }, // センターコードを送信
       });
 
@@ -172,12 +173,15 @@
     const centercd = authStore.centerId;
 
     try {
-      const response = await api.post('/tTanaoroshiCheckT/adjustmentdata', {
-        // kisandata: formattedDate,
-        kisandata: filters.value.arrivalDate,
-        tokuisakicd: filters.value.tokuisaki,
-        centercd: centercd,
-      });
+      const response = await axios.post(
+        'https://www.hokuohylogi.com/tTanaoroshiCheckT/adjustmentdata',
+        {
+          // kisandata: formattedDate,
+          kisandata: filters.value.arrivalDate,
+          tokuisakicd: filters.value.tokuisaki,
+          centercd: centercd,
+        }
+      );
 
       const detailsData = response.data;
 
@@ -553,7 +557,7 @@
     try {
       const uuidList = selectedRows.value.map((row) => row.uuid);
 
-      await api.post('/tTanaoroshiCheckT/updateStatus', {
+      await axios.post('https://www.hokuohylogi.com/tTanaoroshiCheckT/updateStatus', {
         centercd: authStore.centerId,
         uuidList: uuidList,
         createstatus: '作成済',

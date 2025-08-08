@@ -271,9 +271,9 @@
   const currentPage = ref(1);
   const pageSize = ref(500);
 
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const paginatedData = computed(() => {
     const start = (currentPage.value - 1) * pageSize.value;
@@ -335,7 +335,7 @@
   // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd }, // センターコードを送信
       });
 
@@ -369,8 +369,8 @@
       const workdata = filters.value.workdata;
       const tokuisakicd = filters.value.tokuisaki;
 
-      const response = await api.post(
-        '/tTanaoroshiT/deleteBatch', // APIエンドポイント
+      const response = await axios.post(
+        'https://www.hokuohylogi.com/tTanaoroshiT/deleteBatch', // APIエンドポイント
         // "http://192.168.10.127:8091/tTanaoroshiT/deleteBatch", // APIエンドポイント
         null, // ボディは不要（クエリパラメータのみ使用）
         {
@@ -421,14 +421,17 @@
     console.log('検索条件:', workDate, selectedTokuisakiCd);
 
     try {
-      const response = await api.get('/tTanaoroshiT/searchByConditions', {
-        // const response = await axios.get("http://192.168.10.127:8091/tTanaoroshiT/searchByConditions", {
-        params: {
-          workdata: workDate,
-          tokuisakicd: selectedTokuisakiCd,
-          centercd: authStore.centerId,
-        },
-      });
+      const response = await axios.get(
+        'https://www.hokuohylogi.com/tTanaoroshiT/searchByConditions',
+        {
+          // const response = await axios.get("http://192.168.10.127:8091/tTanaoroshiT/searchByConditions", {
+          params: {
+            workdata: workDate,
+            tokuisakicd: selectedTokuisakiCd,
+            centercd: authStore.centerId,
+          },
+        }
+      );
 
       if (Array.isArray(response.data)) {
         tableData.value = response.data.map((item) => ({
@@ -469,7 +472,7 @@
         irisu: selectedRowData.value.irisu,
         centercd: authStore.centerId,
       };
-      const response = await api.put('/tTanaoroshiT/update', payload);
+      const response = await axios.put('https://www.hokuohylogi.com/tTanaoroshiT/update', payload);
       alert(response.data);
       await searchData();
       closeChildView();
@@ -506,9 +509,9 @@
         formData.append('file', utf8File);
         formData.append('centercd', authStore.centerId);
 
-        //const apiUrl = "http://192.168.10.127:8091";
+        const apiUrl = 'https://www.hokuohylogi.com';
 
-        await api.post(`/tTanaoroshiT/import`, formData, {
+        await axios.post(`${apiUrl}/tTanaoroshiT/import`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 

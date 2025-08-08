@@ -141,9 +141,9 @@
     return progressTableData.value.slice(start, end);
   });
 
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const handleSizeChange = (val) => {
     pageSize.value = val;
@@ -174,7 +174,7 @@
   // ▼ 得意先リスト取得
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd },
       });
       if (Array.isArray(response.data)) tokuisakiList.value = response.data;
@@ -189,9 +189,12 @@
   const fetchProgressSummary = async (filterParams) => {
     try {
       const updated = { ...filterParams, centercd };
-      const response = await api.get('/tLocationTFinish/progressSummary', {
-        params: updated,
-      });
+      const response = await axios.get(
+        'https://www.hokuohylogi.com/tLocationTFinish/progressSummary',
+        {
+          params: updated,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('進捗サマリー取得失敗:', error);
@@ -203,9 +206,12 @@
   const fetchProgressDetails = async (filterParams) => {
     try {
       const updated = { ...filterParams, centercd };
-      const response = await api.get('/tLocationTFinish/progressDetails', {
-        params: updated,
-      });
+      const response = await axios.get(
+        'https://www.hokuohylogi.com/tLocationTFinish/progressDetails',
+        {
+          params: updated,
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('進捗詳細取得失敗:', error);

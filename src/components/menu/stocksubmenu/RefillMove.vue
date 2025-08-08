@@ -130,9 +130,9 @@
   // import QRCode from "qrcode";
   import JsBarcode from 'jsbarcode';
 
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const currentPage = ref(1);
   const pageSize = ref(500);
@@ -348,7 +348,7 @@
   // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd }, // センターコードを送信
       });
 
@@ -391,14 +391,17 @@
 
     try {
       //const response = await axios.get("https://www.hokuohylogi.com/tLocationT/searchByConditions", {
-      const response = await api.get('/tLocationT/searchByConditions', {
-        params: {
-          workdata: workDate,
-          tokuisakicd: selectedTokuisakiCd,
-          locationdata: location, // ← APIへ送信する新パラメータ
-          centercd: authStore.centerId,
-        },
-      });
+      const response = await axios.get(
+        'https://www.hokuohylogi.com/tLocationT/searchByConditions',
+        {
+          params: {
+            workdata: workDate,
+            tokuisakicd: selectedTokuisakiCd,
+            locationdata: location, // ← APIへ送信する新パラメータ
+            centercd: authStore.centerId,
+          },
+        }
+      );
 
       if (Array.isArray(response.data)) {
         tableData.value = response.data.map((item) => ({

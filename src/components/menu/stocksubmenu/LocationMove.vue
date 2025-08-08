@@ -279,9 +279,9 @@
   import { computed } from 'vue';
 
   // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const currentPage = ref(1);
   const pageSize = ref(500);
@@ -346,7 +346,7 @@
   // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd }, // センターコードを送信
       });
 
@@ -380,8 +380,8 @@
       const workdata = filters.value.workdata;
       const tokuisakicd = filters.value.tokuisaki;
 
-      const response = await api.post(
-        '/tLocationT/deleteBatch', // APIエンドポイント
+      const response = await axios.post(
+        'https://www.hokuohylogi.com/tLocationT/deleteBatch', // APIエンドポイント
         null, // ボディは不要（クエリパラメータのみ使用）
         {
           params: {
@@ -431,7 +431,7 @@
     console.log('検索条件:', workDate, selectedTokuisakiCd);
 
     try {
-      const response = await api.get('/tLocationT/searchByAllList', {
+      const response = await axios.get('https://www.hokuohylogi.com/tLocationT/searchByAllList', {
         // const response = await axios.get("http://192.168.10.127:8091/tLocationT/searchByAllList", {
         params: {
           workdata: workDate,
@@ -479,7 +479,7 @@
         irisu: selectedRowData.value.irisu,
         centercd: authStore.centerId,
       };
-      const response = await api.put('/receiving/update', payload);
+      const response = await axios.put('https://www.hokuohylogi.com/receiving/update', payload);
       alert(response.data);
       await searchData();
       closeChildView();
@@ -521,8 +521,9 @@
         formData.append('centercd', authStore.centerId);
 
         // const apiUrl = 'https://www.hokuohylogi.com';
+        const apiUrl = 'https://www.hokuohylogi.com';
 
-        await api.post(`/tLocationT/import`, formData, {
+        await axios.post(`${apiUrl}/tLocationT/import`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 

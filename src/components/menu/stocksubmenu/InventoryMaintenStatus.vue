@@ -216,9 +216,9 @@
   const isChildViewVisible = ref(false);
   const appliedDenpyokubun = ref('');
 
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const editRow = (row) => {
     selectedRowData.value = { ...row };
@@ -254,8 +254,8 @@
       };
 
       // PUT リクエスト
-      const url = '/tTanaoroshiCheckT/mobile/updateCheck';
-      const response = await api.put(url, payload);
+      const url = 'https://www.hokuohylogi.com/tTanaoroshiCheckT/mobile/updateCheck';
+      const response = await axios.put(url, payload);
 
       alert(response.data);
       closeChildView();
@@ -296,7 +296,7 @@
   // ▼ 得意先リスト取得
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
         params: { centercd },
       });
       if (Array.isArray(response.data)) tokuisakiList.value = response.data;
@@ -311,7 +311,7 @@
   const fetchProgressSummary = async (filterParams) => {
     try {
       const updated = { ...filterParams, centercd };
-      const response = await api.get('tTanaoroshiT/progressSummary', {
+      const response = await axios.get('https://www.hokuohylogi.com/tTanaoroshiT/progressSummary', {
         params: updated,
       });
       return response.data;
@@ -325,7 +325,7 @@
   const fetchProgressDetails = async (filterParams) => {
     try {
       const updated = { ...filterParams, centercd };
-      const response = await api.get('/tTanaoroshiT/progressDetails', {
+      const response = await axios.get('https://www.hokuohylogi.com/tTanaoroshiT/progressDetails', {
         params: updated,
       });
       return response.data;
