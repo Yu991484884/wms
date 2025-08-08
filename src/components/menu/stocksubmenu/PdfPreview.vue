@@ -6,31 +6,31 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
-import axios from "axios";
+  import { onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
+  import axios from 'axios';
 
-const route = useRoute();
-const pdfUrl = ref("");
+  const route = useRoute();
+  const pdfUrl = ref('');
 
-onMounted(async () => {
-  const uuids = route.query.uuids;
-  if (!uuids) return;
+  onMounted(async () => {
+    const uuids = route.query.uuids;
+    if (!uuids) return;
 
-  try {
-    const response = await axios.post(
-      "https://www.hokuohylogi.com/tLocationT/printPdf",
-      uuids.split(","), // 複数UUID対応
-      {
-        params: { centercd: "TEST" }, // ← 必要に応じて変更
-        responseType: "blob",
-      }
-    );
+    try {
+      const response = await axios.post(
+        'https://www.hokuohylogi.com/tLocationT/printPdf',
+        uuids.split(','), // 複数UUID対応
+        {
+          params: { centercd: 'TEST' }, // ← 必要に応じて変更
+          responseType: 'blob',
+        }
+      );
 
-    const blob = new Blob([response.data], { type: "application/pdf" });
-    pdfUrl.value = URL.createObjectURL(blob);
-  } catch (err) {
-    console.error("PDF取得失敗", err);
-  }
-});
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      pdfUrl.value = URL.createObjectURL(blob);
+    } catch (err) {
+      console.error('PDF取得失敗', err);
+    }
+  });
 </script>

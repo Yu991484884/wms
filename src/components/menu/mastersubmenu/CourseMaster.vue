@@ -10,44 +10,44 @@
 </template>
 
 <script setup>
-function handleUpdate() {
-  alert('更新ボタンがクリックされました！');
-}
+  function handleUpdate() {
+    alert('更新ボタンがクリックされました！');
+  }
 
-function handleSave() {
-  alert('保存ボタンがクリックされました！');
-}
+  function handleSave() {
+    alert('保存ボタンがクリックされました！');
+  }
 
-function handleSearch() {
-  alert('検索ボタンがクリックされました！');
-}
+  function handleSearch() {
+    alert('検索ボタンがクリックされました！');
+  }
 
-function handleDelete() {
-  alert('削除ボタンがクリックされました！');
-}
+  function handleDelete() {
+    alert('削除ボタンがクリックされました！');
+  }
 </script>
 
 <style scoped>
-h1 {
-  font-size: 24px;
-  color: #333;
-}
-p {
-  font-size: 16px;
-  color: #555;
-}
-button {
-  margin-top: 10px;
-  margin-right: 10px;
-  padding: 8px 16px;
-  font-size: 14px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #0056b3;
-}
+  h1 {
+    font-size: 24px;
+    color: #333;
+  }
+  p {
+    font-size: 16px;
+    color: #555;
+  }
+  button {
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
 </style>
