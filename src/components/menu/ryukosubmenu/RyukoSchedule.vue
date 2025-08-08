@@ -246,14 +246,15 @@
   // ✅ axios インスタンス（推奨）
   const api = axios.create({ baseURL: API_BASE_URL });
 
-  // ✅ 取得関数（相対パスでOK）
+  // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
     try {
-      const response = await api.get('/M_TOKUISAKI/getByCenter', {
-        params: { centercd },
+      const response = await axios.get('https://www.hokuohylogi.com/M_TOKUISAKI/getByCenter', {
+        params: { centercd }, // センターコードを送信
       });
-      if (Array.isArray(response.data)) {
-        tokuisakiList.value = response.data;
+
+      if (response.data && Array.isArray(response.data)) {
+        tokuisakiList.value = response.data; // 得意先リストを保存
       } else {
         console.error('得意先データが不正です:', response.data);
       }
