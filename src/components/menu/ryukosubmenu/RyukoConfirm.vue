@@ -125,11 +125,11 @@
   // 得意先リストデータ
   const tokuisakiList = ref([]);
 
-  // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  // ✅ axios インスタンス（推奨）
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // // ✅ axios インスタンス（推奨）
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   // 得意先リストをバックエンドから取得する関数
 
@@ -189,7 +189,7 @@
 
     try {
       // const response = await axios.post("https://www.hokuohylogi.com/ryukodata/confirm", {
-      const response = await api.post('/ryukodata/confirm', {
+      const response = await axios.post('https://www.hokuohylogi.com/ryukodata/confirm', {
         kisandata: formattedDate, // スラッシュ形式に変換された日付
         tokuisaki: filters.value.tokuisaki,
         centercd, // センターコードを追加
@@ -222,9 +222,9 @@
 
     try {
       // バックエンドへデータ送信
-      const response = await api.post(
+      const response = await axios.post(
         // "https://www.hokuohylogi.com/shelving/achievements",
-        '/shelving/achievements',
+        'https://www.hokuohylogi.com/shelving/achievements',
         {
           kisandata: formattedDate, // スラッシュ形式に変換
           tokuisakicd: filters.value.tokuisaki,

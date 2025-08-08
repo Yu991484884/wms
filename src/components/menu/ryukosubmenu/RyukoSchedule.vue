@@ -240,11 +240,11 @@
   import { useAuthStore } from '@/stores/auth'; // 認証ストアからセンターコードを取得
   import { onMounted, computed } from 'vue';
 
-  // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  // ✅ axios インスタンス（推奨）
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // // ✅ axios インスタンス（推奨）
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   // 得意先リストをバックエンドから取得する関数
   const fetchTokuisakiList = async () => {
@@ -358,11 +358,12 @@
 
       // サーバーへ削除リクエストを送信
 
-      const response = await api.post(
-        '/receiving/deleteBatch', //
+      const apiUrl = 'https://www.hokuohylogi.com/receiving/deleteBatch';
+      const response = await axios.post(
+        apiUrl,
         { ryukonoList: selectedRows.value },
         {
-          params: { centercd },
+          params: { centercd }, // センターコードをクエリパラメータとして送信
           headers: {
             'Content-Type': 'application/json',
           },
@@ -410,7 +411,7 @@
     const centercd = authStore.centerId;
 
     // const apiUrl = "https://www.hokuohylogi.com/receiving/search";
-    // const apiUrl = 'https://www.hokuohylogi.com/receiving/search';
+    const apiUrl = 'https://www.hokuohylogi.com/receiving/search';
     const params = {
       arrivalDate: formattedDate,
       tokuisaki: filters.value.tokuisaki,
@@ -419,7 +420,7 @@
     };
 
     try {
-      const response = await api.get('/receiving/search', { params });
+      const response = await axios.get(apiUrl, { params });
       if (response.data && Array.isArray(response.data)) {
         tableData.value = response.data.map((item) => ({
           denpyokubun: denpyokubunMap[item.datakubun] || item.datakubun || '',
@@ -452,7 +453,7 @@
     try {
       //const apiUrl = "https://www.hokuohylogi.com/receiving/update";
       // const apiUrl = "https://www.hokuohylogi.com/receiving/update";
-      // const apiUrl = 'https://www.hokuohylogi.com/receiving/update';
+      const apiUrl = 'https://www.hokuohylogi.com/receiving/update';
 
       // ログイン時のセンターコードを取得
       const centercd = authStore.centerId;
@@ -466,7 +467,7 @@
 
       console.log('送信データ:', payload);
 
-      const response = await api.put('/receiving/update', payload, {
+      const response = await axios.put(apiUrl, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -508,10 +509,11 @@
         formData.append('centercd', centercd); // センターコードをフォームデータに追加
 
         //const apiUrl = "https://www.hokuohylogi.com";
+        const apiUrl = 'https://www.hokuohylogi.com';
 
         // const apiUrl = "http://192.168.10.127:8091"; // ローカル開発用のAPI URL
 
-        await api.post('/receiving/uploadCsv', formData, {
+        await axios.post(`${apiUrl}/receiving/uploadCsv`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },

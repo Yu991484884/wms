@@ -230,11 +230,11 @@
   const isChildViewVisible = ref(false); // 子ビューの表示状態
   const selectedRowData = ref({}); // 子ビューに表示する選択された行データ
 
-  // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  // ✅ axios インスタンス（推奨）
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // // ✅ axios インスタンス（推奨）
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const editRow = (row) => {
     selectedRowData.value = {
@@ -304,7 +304,7 @@
 
   const handleSave = async () => {
     try {
-      // const apiUrl = 'https://www.hokuohylogi.com/shelving/update';
+      const apiUrl = 'https://www.hokuohylogi.com/shelving/update';
 
       // ログイン時のセンターコードを取得
       const centercd = authStore.centerId;
@@ -325,8 +325,10 @@
 
       console.log('送信データ:', payload);
 
-      const response = await api.put('/shelving/update', payload, {
-        headers: { 'Content-Type': 'application/json' },
+      const response = await axios.put(apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       // 成功時の処理
@@ -418,7 +420,7 @@
 
       // リクエスト送信
       // const response = await axios.get("https://www.hokuohylogi.com/progress/summary", {
-      const response = await api.get('/progress/summary', {
+      const response = await axios.get('https://www.hokuohylogi.com/progress/summary', {
         // const response = await axios.get("http://192.168.10.127:8091/progress/summary", {
         params: updatedFilters,
       });
@@ -441,13 +443,9 @@
 
       // リクエスト送信
       // const response = await axios.get("https://www.hokuohylogi.com/progress/details", {
-      const response = await api.get('/progress/details', {
+      const response = await axios.get('https://www.hokuohylogi.com/progress/details', {
         params: updatedProgressFilters,
       });
-
-      //       const response = await axios.get('https://www.hokuohylogi.com/progress/details', {
-      //   params: updatedProgressFilters,
-      // });
 
       return response.data;
     } catch (error) {

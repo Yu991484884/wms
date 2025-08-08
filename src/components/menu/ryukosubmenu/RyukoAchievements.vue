@@ -74,11 +74,11 @@
   import { onMounted } from 'vue';
   import { useAuthStore } from '@/stores/auth'; // 認証ストアからセンターコードを取得
 
-  // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
-  const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+  // // ✅ 環境変数（Vue CLIは process.env.VUE_APP_*）
+  // const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 
-  // ✅ axios インスタンス（推奨）
-  const api = axios.create({ baseURL: API_BASE_URL });
+  // // ✅ axios インスタンス（推奨）
+  // const api = axios.create({ baseURL: API_BASE_URL });
 
   const progressTableData = ref([]);
   // 検索条件
@@ -141,17 +141,17 @@
     // ログイン時のセンターコードを取得
     const centercd = authStore.centerId;
 
-    try {
-      // バックエンドへデータ送信
-      const response = await api.post(
-        // "https://www.hokuohylogi.com/ryukodata/achievements",
-        '/ryukodata/achievements',
-        {
-          kisandata: formattedDate, // スラッシュ形式に変換された日付
-          tokuisakicd: filters.value.tokuisaki,
-          centercd, // センターコードを追加
-        }
-      );
+  try {
+    // バックエンドへデータ送信
+    const response = await axios.post(
+      // "https://www.hokuohylogi.com/ryukodata/achievements", 
+      "https://www.hokuohylogi.com/ryukodata/achievements", 
+      {
+        kisandata: formattedDate, // スラッシュ形式に変換された日付
+        tokuisakicd: filters.value.tokuisaki,
+        centercd, // センターコードを追加
+      }
+    );
 
       // レスポンス処理（データフォーマット変更）
       const detailsData = response.data;
